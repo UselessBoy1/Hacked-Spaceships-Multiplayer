@@ -1,9 +1,14 @@
 package GameObject;
 
 import java.awt.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Game {
+public class Game implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final int ID;
     private boolean ready = false;
 

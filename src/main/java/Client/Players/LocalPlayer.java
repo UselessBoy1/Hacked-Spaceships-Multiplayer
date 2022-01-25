@@ -1,6 +1,6 @@
 package Client.Players;
 
-import Client.KeyHandler;
+import Client.Handlers.KeyHandler;
 
 public class LocalPlayer extends Player{
     private final KeyHandler keyHandler;

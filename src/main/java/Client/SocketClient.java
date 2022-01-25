@@ -1,30 +1,28 @@
 package Client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import GameObject.Game;
+
+import java.io.*;
 import java.net.Socket;
 
 public class SocketClient {
     private Socket clientSocket;
-    private PrintWriter outputToServer;
-    private BufferedReader inputFromServer;
+    private ObjectOutputStream outputToServer;
+    private ObjectInputStream inputFromServer;
 
     public void startConnection(String ip, int port) throws IOException {
         clientSocket = new Socket(ip, port);
-        outputToServer = new PrintWriter(clientSocket.getOutputStream(), true);
-        inputFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        outputToServer = new ObjectOutputStream(clientSocket.getOutputStream());
+        inputFromServer = new ObjectInputStream(clientSocket.getInputStream());
     }
 
-    public String receiveMessage() throws IOException {
-        return inputFromServer.readLine();
+    public Game receiveMessage() throws IOException, ClassNotFoundException {
+        return (Game) inputFromServer.readObject();
     }
 
-    public void sendMessage(String message) {
-        outputToServer.println(message);
+    public void sendMessage(Game game) throws IOException {
+        outputToServer.writeObject(game);
     }
-
 
     public void stopConnection() throws IOException {
         inputFromServer.close();

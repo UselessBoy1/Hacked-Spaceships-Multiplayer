@@ -1,7 +1,9 @@
 package Client;
 
+import Client.Handlers.KeyHandler;
 import Client.Players.LocalPlayer;
 import Client.Players.Player;
+import GameObject.Game;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -17,14 +19,13 @@ public class Level {
     private final int FONT_SIZE = 50;
     private final Font font = new Font("FreeSans", Font.BOLD, FONT_SIZE);
     // states
-    private final String CONNECTING = "conn";
-    private final String WAITING = "wait";
+    private final String CONNECTING = "connecting";
+    private final String WAITING = "waiting";
     private final String GAME = "game";
 
     private String state = CONNECTING;
 
     private final SocketClient socketClient = new SocketClient();
-
 
     public Level(KeyHandler kH) {
         backgroundImage = loadBackgroundImage("/level_background/background_l1.png");
@@ -32,14 +33,23 @@ public class Level {
         localPlayer = new LocalPlayer(kH);
     }
 
+    // for test
+    public String getState() {
+        return state;
+    }
+
     public void update() {
         switch (state) {
             case CONNECTING -> {
                 try {
                     socketClient.startConnection("127.0.0.1", 6666);
-//                    System.out.println(socketClient.receiveMessage());
+                    Game rec = socketClient.receiveMessage();
+                    System.out.println("Game is ready = " + rec.isReady());
+                    rec.setReady(true);
+                    socketClient.sendMessage(rec);
+
                     state = WAITING;
-                } catch (IOException e) {
+                } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                     state = CONNECTING;
                 }

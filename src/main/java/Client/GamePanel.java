@@ -1,5 +1,7 @@
 package Client;
 
+import Client.Handlers.KeyHandler;
+
 import javax.swing.*;
 import java.awt.*;
 

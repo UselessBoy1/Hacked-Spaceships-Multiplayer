@@ -2,10 +2,7 @@ package Server;
 
 import GameObject.Game;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
@@ -25,7 +22,7 @@ public class Server {
             // wait for new client
             Socket newClient = serverSocket.accept();
 
-            int gameId = idCounter / 2;
+            int gameId = idCounter / 2 + 1;
             int playerId = 1;
             idCounter++;
 
@@ -34,7 +31,7 @@ public class Server {
             // if idCounter is odd -> first player joined -> make new game
             if (idCounter % 2 == 1) {
                 gamesMap.put(gameId, new Game(gameId));
-                System.out.println("[SERVER] start game " + gameId);
+                System.out.println("[SERVER] create game " + gameId);
             }
             // if idCounter is even -> second player joined -> start new game and give second player different id
             else {
@@ -57,36 +54,45 @@ public class Server {
         private final int PLAYER_ID;
         private final int GAME_ID;
         private final int SOCKET_ID;
-        private final PrintWriter outputToClient;
-        private final BufferedReader inputFromClient;
+        private final ObjectOutputStream outputToClient;
+        private final ObjectInputStream inputFromClient;
 
         public ClientHandler(Socket socket, int playerId, int gameId, int socketId) throws IOException {
             clientSocket = socket;
             PLAYER_ID = playerId;
             GAME_ID = gameId;
             SOCKET_ID = socketId;
-            outputToClient = new PrintWriter(clientSocket.getOutputStream(), true);
-            inputFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            outputToClient = new ObjectOutputStream(clientSocket.getOutputStream());
+            inputFromClient = new ObjectInputStream(clientSocket.getInputStream());
         }
 
         @Override
         public void run() {
             try {
-                outputToClient.println("[SERVER] Hello client " + SOCKET_ID); // test
+//                outputToClient.println("[SERVER] Hello client " + SOCKET_ID); // test
+                Game game = gamesMap.get(GAME_ID);
+                outputToClient.writeObject(game);
 
-                String receivedLine;
-                while ( (receivedLine = inputFromClient.readLine()) != null) {
-
-                    System.out.println("[Client " + SOCKET_ID + "] " + receivedLine);
-                }
+                Game gameFromClient;
+                try {
+                    while ( (gameFromClient = (Game) inputFromClient.readObject()) != null) {
+                        if ( ! gamesMap.containsKey(GAME_ID)) {
+                            break;
+                        }
+                        System.out.println("[Client " + SOCKET_ID + "] " + gameFromClient.isReady());
+                    }
+                } catch (Exception ignored) {} // client disconnected unexpectedly
 
                 stopConnectionWithThisClient();
-                System.out.println("[SERVER] client " + SOCKET_ID + " disconnected");
 
-                gamesMap.remove(GAME_ID);
-                System.out.println("[SERVER] destroying game " + GAME_ID);
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            System.out.println("[SERVER] client " + SOCKET_ID + " disconnected");
+            if (gamesMap.containsKey(GAME_ID)) {
+                gamesMap.remove(GAME_ID);
+                idCounter--;
+                System.out.println("[SERVER] destroying game " + GAME_ID);
             }
         }
 
