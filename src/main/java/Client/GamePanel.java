@@ -12,7 +12,7 @@ public class GamePanel extends JPanel implements Runnable {
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();
 
-    Level level = new Level();
+    Level level = new Level(keyHandler);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));

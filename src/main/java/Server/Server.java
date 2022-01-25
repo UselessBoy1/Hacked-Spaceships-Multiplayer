@@ -26,7 +26,7 @@ public class Server {
             Socket newClient = serverSocket.accept();
 
             int gameId = idCounter / 2;
-            int playerId = 0;
+            int playerId = 1;
             idCounter++;
 
             System.out.println("[SERVER] client "  + idCounter + " joined");
@@ -40,7 +40,7 @@ public class Server {
             else {
                 gamesMap.get(gameId).setReady(true);
                 System.out.println("[SERVER] game " + gameId + " is ready to play");
-                playerId = 1;
+                playerId = 2;
             }
 
             // start new thread which handles one client
