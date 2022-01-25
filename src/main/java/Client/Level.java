@@ -14,6 +14,18 @@ public class Level {
     private Player opponentPlayer;
     private LocalPlayer localPlayer;
 
+    private final int FONT_SIZE = 50;
+    private final Font font = new Font("FreeSans", Font.BOLD, FONT_SIZE);
+    // states
+    private final String CONNECTING = "conn";
+    private final String WAITING = "wait";
+    private final String GAME = "game";
+
+    private String state = CONNECTING;
+
+    private final SocketClient socketClient = new SocketClient();
+
+
     public Level(KeyHandler kH) {
         backgroundImage = loadBackgroundImage("/level_background/background_l1.png");
         opponentPlayer = new Player();
@@ -21,17 +33,48 @@ public class Level {
     }
 
     public void update() {
-        localPlayer.move();
+        switch (state) {
+            case CONNECTING -> {
+                try {
+                    socketClient.startConnection("127.0.0.1", 6666);
+//                    System.out.println(socketClient.receiveMessage());
+                    state = WAITING;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    state = CONNECTING;
+                }
+            }
+            case WAITING -> {
+
+            }
+            case GAME -> {
+                localPlayer.move();
+            }
+        }
     }
 
     public void draw(Graphics2D g2) {
         g2.drawImage(backgroundImage, 0, 0, null);
-
-        localPlayer.draw(g2);
-        opponentPlayer.draw(g2);
-
-        localPlayer.drawHpBar(g2);
-        opponentPlayer.drawHpBar(g2);
+        switch (state) {
+            case CONNECTING -> {
+                g2.setColor(Color.black);
+                g2.setFont(font);
+                g2.drawString("Connecting to server", 250, 300);
+            }
+            case WAITING -> {
+                localPlayer.draw(g2);
+                localPlayer.drawHpBar(g2);
+                g2.setColor(Color.black);
+                g2.setFont(font);
+                g2.drawString("Waiting for opponent", 250, 300);
+            }
+            case GAME -> {
+                localPlayer.draw(g2);
+                opponentPlayer.draw(g2);
+                localPlayer.drawHpBar(g2);
+                opponentPlayer.drawHpBar(g2);
+            }
+        }
     }
 
     private BufferedImage loadBackgroundImage(String path) {
