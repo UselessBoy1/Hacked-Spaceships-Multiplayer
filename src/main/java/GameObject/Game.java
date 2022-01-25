@@ -28,7 +28,19 @@ public class Game implements Serializable {
         return ready;
     }
 
+
+    public Game determineAndUpdate(Game gameFromClient) {
+        if (!this.ready && gameFromClient.isReady()) {
+            this.ready = true;
+        }
+        return this;
+    }
+
     public void setReady(boolean ready) {
         this.ready = ready;
+    }
+
+    public int getID() {
+        return ID;
     }
 }

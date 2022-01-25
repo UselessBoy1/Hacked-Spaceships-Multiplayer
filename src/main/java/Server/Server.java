@@ -23,6 +23,10 @@ public class Server {
             Socket newClient = serverSocket.accept();
 
             int gameId = idCounter / 2 + 1;
+            // make sure that will be created new game if client connects after idCount--;
+            while (gamesMap.containsKey(gameId) && gamesMap.get(gameId).isReady()) {
+                gameId++;
+            }
             int playerId = 1;
             idCounter++;
 
@@ -69,29 +73,34 @@ public class Server {
         @Override
         public void run() {
             try {
-//                outputToClient.println("[SERVER] Hello client " + SOCKET_ID); // test
-                Game game = gamesMap.get(GAME_ID);
-                outputToClient.writeObject(game);
+                // sends to client first game object
+                Game serverGame = gamesMap.get(GAME_ID);
+                inputFromClient.readObject();
+                outputToClient.writeObject(serverGame);
 
                 Game gameFromClient;
                 try {
+                    // get game data from client
                     while ( (gameFromClient = (Game) inputFromClient.readObject()) != null) {
                         if ( ! gamesMap.containsKey(GAME_ID)) {
+                        // this means that current game no longer exists so player must join to new game
                             break;
                         }
-                        System.out.println("[Client " + SOCKET_ID + "] " + gameFromClient.isReady());
+                        outputToClient.reset();
+                        outputToClient.writeObject(gamesMap.get(GAME_ID).determineAndUpdate(gameFromClient));
                     }
+
                 } catch (Exception ignored) {} // client disconnected unexpectedly
 
                 stopConnectionWithThisClient();
 
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
             System.out.println("[SERVER] client " + SOCKET_ID + " disconnected");
+            idCounter--;
             if (gamesMap.containsKey(GAME_ID)) {
                 gamesMap.remove(GAME_ID);
-                idCounter--;
                 System.out.println("[SERVER] destroying game " + GAME_ID);
             }
         }

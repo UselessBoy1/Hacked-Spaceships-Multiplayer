@@ -26,6 +26,7 @@ public class Level {
     private String state = CONNECTING;
 
     private final SocketClient socketClient = new SocketClient();
+    private Game gameObjFromServer;
 
     public Level(KeyHandler kH) {
         backgroundImage = loadBackgroundImage("/level_background/background_l1.png");
@@ -43,22 +44,33 @@ public class Level {
             case CONNECTING -> {
                 try {
                     socketClient.startConnection("127.0.0.1", 6666);
-                    Game rec = socketClient.receiveMessage();
-                    System.out.println("Game is ready = " + rec.isReady());
-                    rec.setReady(true);
-                    socketClient.sendMessage(rec);
-
+                    gameObjFromServer = socketClient.sendAndReceiveGame(null);
                     state = WAITING;
                 } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
+                    System.out.println("Fail to connect");
                     state = CONNECTING;
                 }
             }
             case WAITING -> {
-
+                try {
+                    gameObjFromServer = socketClient.sendAndReceiveGame(gameObjFromServer);
+//                    System.out.println(gameObjFromServer); // debug
+                    if (gameObjFromServer.isReady()) {
+                        state = GAME;
+                    }
+                } catch (IOException | ClassNotFoundException e) {
+                    System.out.println("Lost connection");
+                    state = CONNECTING;
+                }
             }
             case GAME -> {
                 localPlayer.move();
+                try {
+                    gameObjFromServer = socketClient.sendAndReceiveGame(gameObjFromServer);
+                } catch (IOException | ClassNotFoundException e) {
+                    System.out.println("Lost connection");
+                    state = CONNECTING;
+                }
             }
         }
     }
@@ -83,6 +95,10 @@ public class Level {
                 opponentPlayer.draw(g2);
                 localPlayer.drawHpBar(g2);
                 opponentPlayer.drawHpBar(g2);
+
+                g2.setColor(Color.black);
+                g2.setFont(new Font("FreeSans", Font.BOLD, 40));
+                g2.drawString("GAME: " + gameObjFromServer.getID(), 800, 30);
             }
         }
     }

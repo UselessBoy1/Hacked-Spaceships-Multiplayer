@@ -16,13 +16,19 @@ public class SocketClient {
         inputFromServer = new ObjectInputStream(clientSocket.getInputStream());
     }
 
-    public Game receiveMessage() throws IOException, ClassNotFoundException {
+    public Game sendAndReceiveGame(Game game) throws IOException, ClassNotFoundException {
+        outputToServer.writeObject(game);
         return (Game) inputFromServer.readObject();
     }
 
-    public void sendMessage(Game game) throws IOException {
-        outputToServer.writeObject(game);
+    public boolean receiveIsReady() throws IOException {
+        outputToServer.writeBoolean(true);
+        return inputFromServer.readBoolean();
     }
+
+//    public void sendMessage(Game game) throws IOException {
+//        outputToServer.writeObject(game);
+//    }
 
     public void stopConnection() throws IOException {
         inputFromServer.close();
