@@ -27,6 +27,7 @@ public class Level {
 
     private final SocketClient socketClient = new SocketClient();
     private Game gameObjFromServer;
+    private int playerId;
 
     public Level(KeyHandler kH) {
         backgroundImage = loadBackgroundImage("/level_background/background_l1.png");
@@ -45,6 +46,7 @@ public class Level {
                 try {
                     socketClient.startConnection("127.0.0.1", 6666);
                     gameObjFromServer = socketClient.sendAndReceiveGame(null);
+                    playerId = gameObjFromServer.getPlayerId();
                     state = WAITING;
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Fail to connect");
@@ -54,7 +56,6 @@ public class Level {
             case WAITING -> {
                 try {
                     gameObjFromServer = socketClient.sendAndReceiveGame(gameObjFromServer);
-//                    System.out.println(gameObjFromServer); // debug
                     if (gameObjFromServer.isReady()) {
                         state = GAME;
                     }
@@ -65,11 +66,28 @@ public class Level {
             }
             case GAME -> {
                 localPlayer.move();
+
+                if (playerId == 1) {
+                    gameObjFromServer.updatePlayer1(localPlayer.getPos(), localPlayer.getHp());
+                }
+                else { // 2
+                    gameObjFromServer.updatePlayer2(localPlayer.getPos(), localPlayer.getHp());
+                }
+
                 try {
                     gameObjFromServer = socketClient.sendAndReceiveGame(gameObjFromServer);
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Lost connection");
                     state = CONNECTING;
+                }
+
+                if (playerId == 1) {
+                    opponentPlayer.x = gameObjFromServer.getPlayer2Position().x;
+                    opponentPlayer.y = gameObjFromServer.getPlayer2Position().y;
+                }
+                else { // 2
+                    opponentPlayer.x = gameObjFromServer.getPlayer1Position().x;
+                    opponentPlayer.y = gameObjFromServer.getPlayer1Position().y;
                 }
             }
         }
@@ -98,7 +116,8 @@ public class Level {
 
                 g2.setColor(Color.black);
                 g2.setFont(new Font("FreeSans", Font.BOLD, 40));
-                g2.drawString("GAME: " + gameObjFromServer.getID(), 800, 30);
+                g2.drawString("GAME: " + gameObjFromServer.getID(), 700, 30);
+                g2.drawString("ID: " + playerId, 900, 30);
             }
         }
     }

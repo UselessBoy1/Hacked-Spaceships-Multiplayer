@@ -13,7 +13,7 @@ public class Player {
     public int width = 120, height = 120;
     public String name;
 
-    protected final int SPEED = 6;
+    protected final int SPEED = 3;
 
     protected HpBar hpBar;
     protected int hp = 200;
@@ -30,6 +30,14 @@ public class Player {
         y = 100;
         hpBar = new HpBar(20, 25, hp, name);
         loadAllImages("red_enemy/enemy1_");
+    }
+
+    public Point getPos() {
+        return new Point(x, y);
+    }
+
+    public int getHp() {
+        return hp;
     }
 
     public void draw(Graphics2D g2) {

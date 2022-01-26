@@ -21,15 +21,6 @@ public class SocketClient {
         return (Game) inputFromServer.readObject();
     }
 
-    public boolean receiveIsReady() throws IOException {
-        outputToServer.writeBoolean(true);
-        return inputFromServer.readBoolean();
-    }
-
-//    public void sendMessage(Game game) throws IOException {
-//        outputToServer.writeObject(game);
-//    }
-
     public void stopConnection() throws IOException {
         inputFromServer.close();
         outputToServer.close();

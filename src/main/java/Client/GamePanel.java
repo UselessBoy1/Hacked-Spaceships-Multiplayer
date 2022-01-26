@@ -9,7 +9,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     final int WIDTH = 1000;
     final int HEIGHT = 750;
-    final int FPS = 60;
+    final int FPS = 120;
 
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();

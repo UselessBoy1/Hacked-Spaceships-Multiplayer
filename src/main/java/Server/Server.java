@@ -75,6 +75,7 @@ public class Server {
             try {
                 // sends to client first game object
                 Game serverGame = gamesMap.get(GAME_ID);
+                serverGame.setPlayerId(PLAYER_ID);
                 inputFromClient.readObject();
                 outputToClient.writeObject(serverGame);
 
@@ -86,8 +87,19 @@ public class Server {
                         // this means that current game no longer exists so player must join to new game
                             break;
                         }
+//                        System.out.println("[SERVER] received from client " + SOCKET_ID);
                         outputToClient.reset();
-                        outputToClient.writeObject(gamesMap.get(GAME_ID).determineAndUpdate(gameFromClient));
+                        Game gameToSend;
+                        if (PLAYER_ID == 1) {
+                            gameToSend = gamesMap.get(GAME_ID).determineAndUpdate1(gameFromClient);
+                        }
+                        else { // 2
+                            gameToSend = gamesMap.get(GAME_ID).determineAndUpdate2(gameFromClient);
+                        }
+                        outputToClient.writeObject(gameToSend);
+//                        System.out.println("c " + SOCKET_ID + " "
+//                                    + gameToSend.getPlayer1Position().x + " " + gameToSend.getPlayer1Position().y +
+//                                    " " + gameToSend.getPlayer2Position().x + " " + gameToSend.getPlayer2Position().y);
                     }
 
                 } catch (Exception ignored) {} // client disconnected unexpectedly
