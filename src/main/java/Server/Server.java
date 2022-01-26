@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -89,7 +90,6 @@ public class Server {
                         // this means that current game no longer exists so player must join to new game
                             break;
                         }
-//                        System.out.println("[SERVER] received from client " + SOCKET_ID);
                         outputToClient.reset();
                         Game gameToSend;
                         if (PLAYER_ID == 1) {
@@ -98,13 +98,14 @@ public class Server {
                         else { // 2
                             gameToSend = gamesMap.get(GAME_ID).determineAndUpdate2(gameFromClient);
                         }
+
                         outputToClient.writeObject(gameToSend);
-//                        System.out.println("c " + SOCKET_ID + " "
-//                                    + gameToSend.getPlayer1Position().x + " " + gameToSend.getPlayer1Position().y +
-//                                    " " + gameToSend.getPlayer2Position().x + " " + gameToSend.getPlayer2Position().y);
                     }
 
-                } catch (Exception ignored) {} // client disconnected unexpectedly
+                }catch (SocketException | EOFException ignored) {}
+                catch (Exception e) {
+                    e.printStackTrace();
+                } // client disconnected unexpectedly
 
                 stopConnectionWithThisClient();
 

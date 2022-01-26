@@ -17,6 +17,7 @@ public class SocketClient {
     }
 
     public Game sendAndReceiveGame(Game game) throws IOException, ClassNotFoundException {
+        outputToServer.reset();
         outputToServer.writeObject(game);
         return (Game) inputFromServer.readObject();
     }

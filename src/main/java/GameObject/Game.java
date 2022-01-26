@@ -1,5 +1,8 @@
 package GameObject;
 
+import Client.Players.Bullet;
+import Client.Players.LocalPlayer;
+
 import java.awt.*;
 import java.io.Serial;
 import java.io.Serializable;
@@ -14,11 +17,11 @@ public class Game implements Serializable {
     private int playerId;
 
     private Point player1Position = new Point(400, 600);
-    private ArrayList<Point> players1BulletsPositions;
+    private ArrayList<Bullet> players1BulletsPositions = new ArrayList<>();
     private int player1HP;
 
     private Point player2Position = new Point(400, 100);
-    private ArrayList<Point> players2BulletsPositions;
+    private ArrayList<Bullet> players2BulletsPositions = new ArrayList<>();
     private int player2HP;
 
     public Game(int id) {
@@ -31,6 +34,7 @@ public class Game implements Serializable {
         }
         this.player1Position = gameFromClient.player1Position;
         this.player2HP = gameFromClient.player2HP;
+        this.players1BulletsPositions = gameFromClient.players1BulletsPositions;
 
         return this;
     }
@@ -41,6 +45,7 @@ public class Game implements Serializable {
         }
         this.player1HP = gameFromClient.player1HP;
         this.player2Position = gameFromClient.player2Position;
+        this.players2BulletsPositions = gameFromClient.players2BulletsPositions;
 
         return this;
     }
@@ -63,15 +68,25 @@ public class Game implements Serializable {
     public Point getPlayer2Position() {
         return player2Position;
     }
-
-    public void updatePlayer1(Point pos, int hp) {
-        player1Position = pos;
-        player1HP = hp;
+    
+    public ArrayList<Bullet> getPlayers1BulletsPositions() {
+        return players1BulletsPositions;
+    }
+    
+    public ArrayList<Bullet> getPlayers2BulletsPositions() {
+        return players2BulletsPositions;
     }
 
-    public void updatePlayer2(Point pos, int hp) {
-        player2Position = pos;
-        player2HP = hp;
+    public void updatePlayer1(LocalPlayer player) {
+        player1Position = player.getPos();
+        player1HP = player.getHp();
+        players1BulletsPositions = new ArrayList<>(player.bullets);
+    }
+
+    public void updatePlayer2(LocalPlayer player) {
+        player2Position = player.getPos();
+        player2HP = player.getHp();
+        players2BulletsPositions = new ArrayList<>(player.bullets);
     }
     public void setReady(boolean ready) {
         this.ready = ready;

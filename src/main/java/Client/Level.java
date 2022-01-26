@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class Level {
@@ -68,12 +69,13 @@ public class Level {
             }
             case GAME -> {
                 localPlayer.move();
+                localPlayer.moveBullets();
 
                 if (playerId == 1) {
-                    gameObjFromServer.updatePlayer1(localPlayer.getPos(), localPlayer.getHp());
+                    gameObjFromServer.updatePlayer1(localPlayer);
                 }
                 else { // 2
-                    gameObjFromServer.updatePlayer2(localPlayer.getPos(), localPlayer.getHp());
+                    gameObjFromServer.updatePlayer2(localPlayer);
                 }
 
                 try {
@@ -86,10 +88,14 @@ public class Level {
                 if (playerId == 1) {
                     opponentPlayer.x = GamePanel.WIDTH - opponentPlayer.width - gameObjFromServer.getPlayer2Position().x;
                     opponentPlayer.y = GamePanel.HEIGHT - opponentPlayer.height - gameObjFromServer.getPlayer2Position().y;
+                    opponentPlayer.bullets = gameObjFromServer.getPlayers2BulletsPositions();
+                    opponentPlayer.refreshBulletsPos();
                 }
                 else { // 2
                     opponentPlayer.x = GamePanel.WIDTH - opponentPlayer.width - gameObjFromServer.getPlayer1Position().x;
                     opponentPlayer.y = GamePanel.HEIGHT - opponentPlayer.height - gameObjFromServer.getPlayer1Position().y;
+                    opponentPlayer.bullets = gameObjFromServer.getPlayers1BulletsPositions();
+                    opponentPlayer.refreshBulletsPos();
                 }
             }
         }
@@ -115,7 +121,11 @@ public class Level {
             case GAME -> {
                 if (localPlayer != null && opponentPlayer != null) {
                     localPlayer.draw(g2);
+                    localPlayer.drawBullets(g2);
+
                     opponentPlayer.draw(g2);
+                    opponentPlayer.drawBullets(g2);
+
                     localPlayer.drawHpBar(g2);
                     opponentPlayer.drawHpBar(g2);
                 }
@@ -126,6 +136,8 @@ public class Level {
             }
         }
     }
+
+
 
     private BufferedImage loadBackgroundImage(String path) {
         BufferedImage bg = null;

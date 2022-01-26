@@ -1,9 +1,12 @@
 package Client.Players;
 
+import Client.GamePanel;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class Player {
@@ -23,6 +26,10 @@ public class Player {
     protected BufferedImage[] boomImages = new BufferedImage[NUM_OF_IMAGES];
     protected int animationCounter = 0;
 
+    public ArrayList<Bullet> bullets = new ArrayList<>();
+//    public ArrayList<Point> bulletsPos = new ArrayList<>();
+    protected boolean lostBullet = false;
+
     // opponent constructor
     public Player() {
         name = "OPPONENT";
@@ -32,6 +39,44 @@ public class Player {
         loadAllImages("red_enemy/enemy1_");
     }
 
+    public boolean collision(Player enemy) {
+        if ((enemy.x + enemy.width) > this.x && enemy.x < (this.x + this.width))
+            if ((enemy.y + enemy.height - enemy.POINT_Y2) > this.y && (enemy.y + enemy.POINT_Y1) < (this.y + this.height))
+                return true;
+        if ((enemy.x + enemy.POINT_X2) > (this.x + this.POINT_X1) && (enemy.x + enemy.POINT_X1) < (this.x + this.POINT_X2))
+            return (enemy.y + enemy.height) > this.y && enemy.y < (this.y + this.height);
+        return false;
+    }
+
+    public void moveBullets() {
+        for (int i = 0; i < bullets.size(); ++i) {
+            Bullet bullet = bullets.get(i);
+            bullet.move();
+//            bulletsPos.get(i).x = bullet.x;
+//            bulletsPos.get(i).y = bullet.y;
+            if (bullet.outOfGame()) {
+                lostBullet = true;
+                bullets.remove(i);
+//                bulletsPos.remove(i);
+                --i;
+            }
+        }
+    }
+
+    public void refreshBulletsPos() {
+        for (int i = 0; i < bullets.size(); ++i) {
+            bullets.get(i).x = GamePanel.WIDTH - bullets.get(i).width - bullets.get(i).x;
+            bullets.get(i).y = GamePanel.HEIGHT - bullets.get(i).height - bullets.get(i).y;
+            bullets.get(i).goDown = true;
+        }
+    }
+
+    public void drawBullets(Graphics2D g2) {
+        for (int i = 0; i < bullets.size(); ++i) {
+            Bullet b = bullets.get(i);
+            b.draw(g2);
+        }
+    }
     public Point getPos() {
         return new Point(x, y);
     }
