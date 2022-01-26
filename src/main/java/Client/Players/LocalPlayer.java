@@ -25,10 +25,6 @@ public class LocalPlayer extends Player{
         }
     }
 
-    public void setHp(int val) {
-        hp = val;
-    }
-
     public void move() {
         if (keyHandler.rightPressed && !keyHandler.leftPressed) {
             x += SPEED;

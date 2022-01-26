@@ -18,11 +18,19 @@ public class Game implements Serializable {
 
     private Point player1Position = new Point(400, 600);
     private ArrayList<Bullet> players1BulletsPositions = new ArrayList<>();
-    private int player1HP;
+    private int player1HP = 200;
 
-    private Point player2Position = new Point(400, 100);
+    private Point player2Position = new Point(-400, -100);
     private ArrayList<Bullet> players2BulletsPositions = new ArrayList<>();
-    private int player2HP;
+    private int player2HP = 200;
+
+    // game results
+    public static final String PLAYER_1 = "p1";
+    public static final String PLAYER_2 = "p2";
+    public static final String DRAW = "dr";
+    public static final String NONE = "none";
+
+    private String winner = NONE;
 
     public Game(int id) {
         ID = id;
@@ -35,6 +43,10 @@ public class Game implements Serializable {
         this.player1Position = gameFromClient.player1Position;
         this.player2HP = gameFromClient.player2HP;
         this.players1BulletsPositions = gameFromClient.players1BulletsPositions;
+
+        if (this.winner.equals(NONE)) {
+            this.winner = gameFromClient.getWinner();
+        }
 
         return this;
     }
@@ -102,5 +114,13 @@ public class Game implements Serializable {
 
     public int getID() {
         return ID;
+    }
+
+    public String getWinner() {
+        return winner;
+    }
+
+    public void setWinner(String winner) {
+        this.winner = winner;
     }
 }

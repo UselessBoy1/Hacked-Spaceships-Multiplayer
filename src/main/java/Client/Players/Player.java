@@ -33,8 +33,8 @@ public class Player {
     // opponent constructor
     public Player() {
         name = "OPPONENT";
-        x = 400;
-        y = 100;
+        x = -100;
+        y = -100;
         hpBar = new HpBar(20, 25, hp, name);
         loadAllImages("red_enemy/enemy1_");
     }
@@ -61,6 +61,10 @@ public class Player {
                 --i;
             }
         }
+    }
+
+    public void setHp(int val) {
+        hp = val;
     }
 
     public void refreshHp() {

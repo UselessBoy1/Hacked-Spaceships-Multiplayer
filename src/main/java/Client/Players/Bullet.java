@@ -26,6 +26,7 @@ public class Bullet implements Serializable {
     }
 
     public void draw(Graphics2D g2) {
+        g2.setColor(Color.green);
         g2.fillRect(x, y, width, height);
     }
 
