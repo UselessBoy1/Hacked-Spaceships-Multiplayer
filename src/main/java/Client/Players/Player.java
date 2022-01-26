@@ -63,6 +63,10 @@ public class Player {
         }
     }
 
+    public void refreshHp() {
+        hpBar.setHp(hp);
+    }
+
     public void refreshBulletsPos() {
         for (int i = 0; i < bullets.size(); ++i) {
             bullets.get(i).x = GamePanel.WIDTH - bullets.get(i).width - bullets.get(i).x;
@@ -85,6 +89,9 @@ public class Player {
         return hp;
     }
 
+    public void decreaseHp(int val) {
+        hp -= val;
+    }
     public void draw(Graphics2D g2) {
         animationCounter++;
         if (animationCounter >= 58) {

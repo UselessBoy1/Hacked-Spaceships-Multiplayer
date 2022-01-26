@@ -61,6 +61,14 @@ public class Game implements Serializable {
         return playerId;
     }
 
+    public int getPlayer1HP() {
+        return player1HP;
+    }
+
+    public int getPlayer2HP() {
+        return player2HP;
+    }
+
     public Point getPlayer1Position() {
         return player1Position;
     }
@@ -77,15 +85,15 @@ public class Game implements Serializable {
         return players2BulletsPositions;
     }
 
-    public void updatePlayer1(LocalPlayer player) {
+    public void updatePlayer1(LocalPlayer player, int opponentHp) {
         player1Position = player.getPos();
-        player1HP = player.getHp();
+        player2HP = opponentHp;
         players1BulletsPositions = new ArrayList<>(player.bullets);
     }
 
-    public void updatePlayer2(LocalPlayer player) {
+    public void updatePlayer2(LocalPlayer player, int opponentHp) {
         player2Position = player.getPos();
-        player2HP = player.getHp();
+        player1HP = opponentHp;
         players2BulletsPositions = new ArrayList<>(player.bullets);
     }
     public void setReady(boolean ready) {

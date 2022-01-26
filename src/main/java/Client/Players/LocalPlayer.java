@@ -2,8 +2,6 @@ package Client.Players;
 
 import Client.Handlers.KeyHandler;
 
-import java.awt.*;
-
 public class LocalPlayer extends Player{
     private final KeyHandler keyHandler;
     private long lastSpaceTypedTime = 0;
@@ -24,8 +22,11 @@ public class LocalPlayer extends Player{
             keyHandler.spaceTyped = false;
             lastSpaceTypedTime = currentSpaceTypedTime;
             bullets.add(new Bullet(x + width / 2, y, false));
-//            bulletsPos.add(new Point(x + width / 2, y));
         }
+    }
+
+    public void setHp(int val) {
+        hp = val;
     }
 
     public void move() {

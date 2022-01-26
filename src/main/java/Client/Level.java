@@ -1,6 +1,7 @@
 package Client;
 
 import Client.Handlers.KeyHandler;
+import Client.Players.Bullet;
 import Client.Players.LocalPlayer;
 import Client.Players.Player;
 import GameObject.Game;
@@ -70,12 +71,14 @@ public class Level {
             case GAME -> {
                 localPlayer.move();
                 localPlayer.moveBullets();
+                opponentPlayer.refreshHp();
+                checkLocalPlayerBulletsHits();
 
                 if (playerId == 1) {
-                    gameObjFromServer.updatePlayer1(localPlayer);
+                    gameObjFromServer.updatePlayer1(localPlayer, opponentPlayer.getHp());
                 }
                 else { // 2
-                    gameObjFromServer.updatePlayer2(localPlayer);
+                    gameObjFromServer.updatePlayer2(localPlayer, opponentPlayer.getHp());
                 }
 
                 try {
@@ -86,17 +89,31 @@ public class Level {
                 }
 
                 if (playerId == 1) {
+                    localPlayer.setHp(gameObjFromServer.getPlayer1HP());
                     opponentPlayer.x = GamePanel.WIDTH - opponentPlayer.width - gameObjFromServer.getPlayer2Position().x;
                     opponentPlayer.y = GamePanel.HEIGHT - opponentPlayer.height - gameObjFromServer.getPlayer2Position().y;
                     opponentPlayer.bullets = gameObjFromServer.getPlayers2BulletsPositions();
                     opponentPlayer.refreshBulletsPos();
                 }
                 else { // 2
+                    localPlayer.setHp(gameObjFromServer.getPlayer2HP());
                     opponentPlayer.x = GamePanel.WIDTH - opponentPlayer.width - gameObjFromServer.getPlayer1Position().x;
                     opponentPlayer.y = GamePanel.HEIGHT - opponentPlayer.height - gameObjFromServer.getPlayer1Position().y;
                     opponentPlayer.bullets = gameObjFromServer.getPlayers1BulletsPositions();
                     opponentPlayer.refreshBulletsPos();
                 }
+            }
+        }
+    }
+
+    private void checkLocalPlayerBulletsHits() {
+        for (int i = 0; i < localPlayer.bullets.size(); ++i) {
+            Bullet localPlayerBullet = localPlayer.bullets.get(i);
+            if (localPlayerBullet.hit(opponentPlayer)) {
+                // TODO draw hit
+                localPlayer.bullets.remove(i);
+                i--;
+                opponentPlayer.decreaseHp(localPlayerBullet.getPower());
             }
         }
     }
