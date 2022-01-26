@@ -69,8 +69,9 @@ public class Server {
             PLAYER_ID = playerId;
             GAME_ID = gameId;
             SOCKET_ID = socketId;
-            outputToClient = new ObjectOutputStream(clientSocket.getOutputStream());
-            inputFromClient = new ObjectInputStream(clientSocket.getInputStream());
+            outputToClient = new ObjectOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
+            outputToClient.flush();
+            inputFromClient = new ObjectInputStream(new BufferedInputStream(clientSocket.getInputStream()));
         }
 
         @Override
@@ -81,6 +82,7 @@ public class Server {
                 serverGame.setPlayerId(PLAYER_ID);
                 inputFromClient.readObject();
                 outputToClient.writeObject(serverGame);
+                outputToClient.flush();
 
                 Game gameFromClient;
                 try {
@@ -100,6 +102,7 @@ public class Server {
                         }
 
                         outputToClient.writeObject(gameToSend);
+                        outputToClient.flush();
                     }
 
                 }catch (SocketException | EOFException ignored) {}

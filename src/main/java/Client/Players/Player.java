@@ -52,12 +52,9 @@ public class Player {
         for (int i = 0; i < bullets.size(); ++i) {
             Bullet bullet = bullets.get(i);
             bullet.move();
-//            bulletsPos.get(i).x = bullet.x;
-//            bulletsPos.get(i).y = bullet.y;
             if (bullet.outOfGame()) {
                 lostBullet = true;
                 bullets.remove(i);
-//                bulletsPos.remove(i);
                 --i;
             }
         }

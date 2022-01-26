@@ -6,7 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GamePanel extends JPanel implements Runnable {
-
     public static final int WIDTH = 1000;
     public static final int HEIGHT = 750;
     final int FPS = 120;

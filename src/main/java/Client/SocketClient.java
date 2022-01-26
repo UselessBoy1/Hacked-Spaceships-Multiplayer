@@ -12,13 +12,15 @@ public class SocketClient {
 
     public void startConnection(String ip, int port) throws IOException {
         clientSocket = new Socket(ip, port);
-        outputToServer = new ObjectOutputStream(clientSocket.getOutputStream());
-        inputFromServer = new ObjectInputStream(clientSocket.getInputStream());
+        outputToServer = new ObjectOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
+        outputToServer.flush();
+        inputFromServer = new ObjectInputStream(new BufferedInputStream(clientSocket.getInputStream()));
     }
 
     public Game sendAndReceiveGame(Game game) throws IOException, ClassNotFoundException {
         outputToServer.reset();
         outputToServer.writeObject(game);
+        outputToServer.flush();
         return (Game) inputFromServer.readObject();
     }
 
