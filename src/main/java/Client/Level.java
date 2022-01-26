@@ -13,6 +13,7 @@ import java.util.Objects;
 
 public class Level {
     private final BufferedImage backgroundImage;
+    private final KeyHandler keyHandler;
     private Player opponentPlayer;
     private LocalPlayer localPlayer;
 
@@ -31,8 +32,7 @@ public class Level {
 
     public Level(KeyHandler kH) {
         backgroundImage = loadBackgroundImage("/level_background/background_l1.png");
-        opponentPlayer = new Player();
-        localPlayer = new LocalPlayer(kH);
+        keyHandler = kH;
     }
 
     // for test
@@ -44,10 +44,11 @@ public class Level {
         switch (state) {
             case CONNECTING -> {
                 try {
-                    socketClient.startConnection("127.0.0.1", 6666);
+                    socketClient.startConnection("192.168.0.105", 6666);
                     gameObjFromServer = socketClient.sendAndReceiveGame(null);
                     playerId = gameObjFromServer.getPlayerId();
                     state = WAITING;
+                    localPlayer = new LocalPlayer(keyHandler);
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Fail to connect");
                     state = CONNECTING;
@@ -58,6 +59,7 @@ public class Level {
                     gameObjFromServer = socketClient.sendAndReceiveGame(gameObjFromServer);
                     if (gameObjFromServer.isReady()) {
                         state = GAME;
+                        opponentPlayer = new Player();
                     }
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Lost connection");
@@ -82,12 +84,12 @@ public class Level {
                 }
 
                 if (playerId == 1) {
-                    opponentPlayer.x = gameObjFromServer.getPlayer2Position().x;
-                    opponentPlayer.y = gameObjFromServer.getPlayer2Position().y;
+                    opponentPlayer.x = GamePanel.WIDTH - opponentPlayer.width - gameObjFromServer.getPlayer2Position().x;
+                    opponentPlayer.y = GamePanel.HEIGHT - opponentPlayer.height - gameObjFromServer.getPlayer2Position().y;
                 }
                 else { // 2
-                    opponentPlayer.x = gameObjFromServer.getPlayer1Position().x;
-                    opponentPlayer.y = gameObjFromServer.getPlayer1Position().y;
+                    opponentPlayer.x = GamePanel.WIDTH - opponentPlayer.width - gameObjFromServer.getPlayer1Position().x;
+                    opponentPlayer.y = GamePanel.HEIGHT - opponentPlayer.height - gameObjFromServer.getPlayer1Position().y;
                 }
             }
         }
@@ -102,18 +104,21 @@ public class Level {
                 g2.drawString("Connecting to server", 250, 300);
             }
             case WAITING -> {
-                localPlayer.draw(g2);
-                localPlayer.drawHpBar(g2);
+                if (localPlayer != null) {
+                    localPlayer.draw(g2);
+                    localPlayer.drawHpBar(g2);
+                }
                 g2.setColor(Color.black);
                 g2.setFont(font);
                 g2.drawString("Waiting for opponent", 250, 300);
             }
             case GAME -> {
-                localPlayer.draw(g2);
-                opponentPlayer.draw(g2);
-                localPlayer.drawHpBar(g2);
-                opponentPlayer.drawHpBar(g2);
-
+                if (localPlayer != null && opponentPlayer != null) {
+                    localPlayer.draw(g2);
+                    opponentPlayer.draw(g2);
+                    localPlayer.drawHpBar(g2);
+                    opponentPlayer.drawHpBar(g2);
+                }
                 g2.setColor(Color.black);
                 g2.setFont(new Font("FreeSans", Font.BOLD, 40));
                 g2.drawString("GAME: " + gameObjFromServer.getID(), 700, 30);

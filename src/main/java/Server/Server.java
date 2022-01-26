@@ -3,6 +3,7 @@ package Server;
 import GameObject.Game;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
@@ -14,7 +15,8 @@ public class Server {
     private final Map<Integer, Game> gamesMap = new ConcurrentHashMap<>();
 
     public void start() throws IOException {
-        serverSocket = new ServerSocket(6666);
+        InetAddress address = InetAddress.getByName("192.168.0.105");
+        serverSocket = new ServerSocket(6666, 50, address);
 
         System.out.println("[SERVER] is running");
 

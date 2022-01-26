@@ -21,7 +21,7 @@ class LevelTest {
     @Test
     public void goodWhenClientReceivesGameObjFromServer() throws IOException, ClassNotFoundException {
         SocketClient socketClient = new SocketClient();
-        socketClient.startConnection("127.0.0.1", 6666);
+        socketClient.startConnection("192.168.0.105", 6666);
         Game game = socketClient.sendAndReceiveGame(null);
         assertNotNull(game);
     }
