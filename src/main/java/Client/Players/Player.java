@@ -6,7 +6,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Objects;
 
 public class Player {
@@ -26,7 +26,7 @@ public class Player {
     protected BufferedImage[] boomImages = new BufferedImage[NUM_OF_IMAGES];
     protected int animationCounter = 0;
 
-    public ArrayList<Bullet> bullets = new ArrayList<>();
+    public LinkedList<Bullet> bullets = new LinkedList<>();
     protected boolean lostBullet = false;
     public boolean isBoom = false;
     public int boomAnimationCounter = 0;

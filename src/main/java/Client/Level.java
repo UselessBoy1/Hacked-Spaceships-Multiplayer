@@ -12,8 +12,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Objects;
 
 public class Level {
@@ -22,8 +22,6 @@ public class Level {
     private Player opponentPlayer;
     private LocalPlayer localPlayer;
 
-    private final int FONT_SIZE = 50;
-    private final Font font = new Font("FreeSans", Font.BOLD, FONT_SIZE);
     // states
     private final String CONNECTING = "connecting";
     private final String WAITING = "waiting";
@@ -38,8 +36,8 @@ public class Level {
     private Game gameObjFromServer;
     private int playerId;
 
-    protected ArrayList<Player> boomPlayers = new ArrayList<>();
-    protected ArrayList<Hit> bulletHits = new ArrayList<>();
+    protected LinkedList<Player> boomPlayers = new LinkedList<>();
+    protected LinkedList<Hit> bulletHits = new LinkedList<>();
     protected final int NUM_OF_IMAGES = 11;
     protected BufferedImage[] boomImages = new BufferedImage[NUM_OF_IMAGES];
 
@@ -87,7 +85,7 @@ public class Level {
 
                 gameObjFromServer.setWinner(checkGameWinner());
 
-                checkLocalPlayerBulletsHits();
+                checkBulletsHits(localPlayer, opponentPlayer);
 
                 if (playerId == 1) {
                     gameObjFromServer.updatePlayer1(localPlayer, opponentPlayer.getHp());
@@ -102,7 +100,6 @@ public class Level {
                     System.out.println("Lost connection");
                     state = CONNECTING;
                 }
-
                 if (playerId == 1) {
                     localPlayer.setHp(gameObjFromServer.getPlayer1HP());
                     opponentPlayer.x = GamePanel.WIDTH - opponentPlayer.width - gameObjFromServer.getPlayer2Position().x;
@@ -176,14 +173,16 @@ public class Level {
         return Game.NONE;
     }
 
-    private void checkLocalPlayerBulletsHits() {
-        for (int i = 0; i < localPlayer.bullets.size(); ++i) {
-            Bullet localPlayerBullet = localPlayer.bullets.get(i);
-            if (localPlayerBullet.hit(opponentPlayer)) {
-                startDrawingHit(localPlayerBullet.x, localPlayerBullet.y, localPlayerBullet.hitDrawScale);
-                localPlayer.bullets.remove(i);
+    private void checkBulletsHits(Player source, Player target) {
+        // checks if bullet hits the target -> start drawing animation and decreases hp if necessary
+
+        for (int i = 0; i < source.bullets.size(); ++i) {
+            Bullet bullet = source.bullets.get(i);
+            if (bullet.hit(target)) {
+                startDrawingHit(bullet.x, bullet.y, bullet.hitDrawScale);
+                source.bullets.remove(i);
                 i--;
-                opponentPlayer.decreaseHp(localPlayerBullet.getPower());
+                target.decreaseHp(bullet.getPower());
             }
         }
     }
@@ -193,7 +192,7 @@ public class Level {
         switch (state) {
             case CONNECTING -> {
                 g2.setColor(Color.black);
-                g2.setFont(font);
+                g2.setFont(new Font("FreeSans", Font.BOLD, 50));
                 g2.drawString("Connecting to server", 250, 300);
             }
             case WAITING -> {
@@ -202,7 +201,7 @@ public class Level {
                     localPlayer.drawHpBar(g2);
                 }
                 g2.setColor(Color.black);
-                g2.setFont(font);
+                g2.setFont(new Font("FreeSans", Font.BOLD, 50));
                 g2.drawString("Waiting for opponent", 250, 300);
             }
             case GAME -> {
@@ -230,7 +229,7 @@ public class Level {
                 drawHits(g2);
                 drawAllBoomAnimations(g2);
                 g2.setColor(Color.green);
-                g2.setFont(font);
+                g2.setFont(new Font("FreeSans", Font.BOLD, 100));
                 g2.drawString("WIN", 390, 300);
             }
             case LOSE -> {
@@ -239,14 +238,14 @@ public class Level {
                 drawHits(g2);
                 drawAllBoomAnimations(g2);
                 g2.setColor(new Color(230, 0, 0));
-                g2.setFont(font);
+                g2.setFont(new Font("FreeSans", Font.BOLD, 100));
                 g2.drawString("LOSE", 360, 300);
             }
             case DRAW -> {
                 drawHits(g2);
                 drawAllBoomAnimations(g2);
                 g2.setColor(Color.darkGray);
-                g2.setFont(font);
+                g2.setFont(new Font("FreeSans", Font.BOLD, 100));
                 g2.drawString("DRAW", 360, 300);
             }
         }

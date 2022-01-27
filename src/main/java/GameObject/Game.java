@@ -6,7 +6,7 @@ import Client.Players.LocalPlayer;
 import java.awt.*;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Game implements Serializable {
     @Serial
@@ -17,11 +17,11 @@ public class Game implements Serializable {
     private int playerId;
 
     private Point player1Position = new Point(400, 600);
-    private ArrayList<Bullet> players1BulletsPositions = new ArrayList<>();
+    private LinkedList<Bullet> players1BulletsPositions = new LinkedList<>();
     private int player1HP = 200;
 
     private Point player2Position = new Point(-400, -100);
-    private ArrayList<Bullet> players2BulletsPositions = new ArrayList<>();
+    private LinkedList<Bullet> players2BulletsPositions = new LinkedList<>();
     private int player2HP = 200;
 
     // game results
@@ -89,24 +89,24 @@ public class Game implements Serializable {
         return player2Position;
     }
     
-    public ArrayList<Bullet> getPlayers1BulletsPositions() {
+    public LinkedList<Bullet> getPlayers1BulletsPositions() {
         return players1BulletsPositions;
     }
     
-    public ArrayList<Bullet> getPlayers2BulletsPositions() {
+    public LinkedList<Bullet> getPlayers2BulletsPositions() {
         return players2BulletsPositions;
     }
 
     public void updatePlayer1(LocalPlayer player, int opponentHp) {
         player1Position = player.getPos();
         player2HP = opponentHp;
-        players1BulletsPositions = new ArrayList<>(player.bullets);
+        players1BulletsPositions = new LinkedList<>(player.bullets);
     }
 
     public void updatePlayer2(LocalPlayer player, int opponentHp) {
         player2Position = player.getPos();
         player1HP = opponentHp;
-        players2BulletsPositions = new ArrayList<>(player.bullets);
+        players2BulletsPositions = new LinkedList<>(player.bullets);
     }
     public void setReady(boolean ready) {
         this.ready = ready;
