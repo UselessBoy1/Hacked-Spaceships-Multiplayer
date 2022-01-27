@@ -1,10 +1,12 @@
 package Client;
 
 import Client.Handlers.KeyHandler;
+import Client.Handlers.MouseHandler;
 import Client.Players.Bullet;
 import Client.Players.LocalPlayer;
 import Client.Players.Player;
 import GameObject.Game;
+import Client.Button.Button;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -36,12 +38,16 @@ public class Level {
     private Game gameObjFromServer;
     private int playerId;
 
-    protected LinkedList<Player> boomPlayers = new LinkedList<>();
-    protected LinkedList<Hit> bulletHits = new LinkedList<>();
-    protected final int NUM_OF_IMAGES = 11;
-    protected BufferedImage[] boomImages = new BufferedImage[NUM_OF_IMAGES];
+    private final LinkedList<Player> boomPlayers = new LinkedList<>();
+    private final LinkedList<Hit> bulletHits = new LinkedList<>();
+    private final int NUM_OF_IMAGES = 11;
+    private final BufferedImage[] boomImages = new BufferedImage[NUM_OF_IMAGES];
 
-    public Level(KeyHandler kH) {
+    private Button resetButton;
+    private final MouseHandler mouseHandler;
+
+    public Level(KeyHandler kH, MouseHandler mH) {
+        mouseHandler = mH;
         backgroundImage = loadBackgroundImage("/level_background/background_l1.png");
         keyHandler = kH;
         loadBoomImages();
@@ -109,6 +115,7 @@ public class Level {
 
                     String winner = gameObjFromServer.getWinner();
                     if ( ! winner.equals(Game.NONE)) {
+                        resetButton = new Button(340, 400, 320, 100, Color.BLUE, new Color(0, 0, 150), "PLAY AGAIN", 50);
                         switch (winner) {
                             case Game.DRAW -> state = DRAW;
                             case Game.PLAYER_1 -> state = WIN;
@@ -125,6 +132,7 @@ public class Level {
 
                     String winner = gameObjFromServer.getWinner();
                     if ( ! winner.equals(Game.NONE)) {
+                        resetButton = new Button(340, 400, 320, 100, Color.BLUE, new Color(0, 0, 150), "PLAY AGAIN", 50);
                         switch (winner) {
                             case Game.DRAW -> state = DRAW;
                             case Game.PLAYER_1 -> state = LOSE;
@@ -133,14 +141,24 @@ public class Level {
                     }
                 }
             }
-            case WIN -> {
+            case WIN, LOSE, DRAW -> {
+                localPlayer.moveBullets();
+                opponentPlayer.moveBullets();
+                if (resetButton.isMouse(mouseHandler.mousePos)) {
+                    resetButton.changeColorToFocus();
+                    if (mouseHandler.clicked) {
+                        mouseHandler.clicked = false;
+                        state = CONNECTING;
+                        try {
+                            socketClient.stopConnection();
+                        } catch (IOException ignored) {}
+                    }
+                 }
+                else {
+                    resetButton.changeColorToDefault();
+                }
+                mouseHandler.clicked = false;
 //                System.out.println("win");
-            }
-            case LOSE -> {
-//                System.out.println("lose");
-            }
-            case DRAW -> {
-//                System.out.println("draw");
             }
         }
     }
@@ -231,6 +249,7 @@ public class Level {
                 g2.setColor(Color.green);
                 g2.setFont(new Font("FreeSans", Font.BOLD, 100));
                 g2.drawString("WIN", 390, 300);
+                resetButton.draw(g2);
             }
             case LOSE -> {
                 opponentPlayer.draw(g2);
@@ -240,6 +259,7 @@ public class Level {
                 g2.setColor(new Color(230, 0, 0));
                 g2.setFont(new Font("FreeSans", Font.BOLD, 100));
                 g2.drawString("LOSE", 360, 300);
+                resetButton.draw(g2);
             }
             case DRAW -> {
                 drawHits(g2);
@@ -247,6 +267,7 @@ public class Level {
                 g2.setColor(Color.darkGray);
                 g2.setFont(new Font("FreeSans", Font.BOLD, 100));
                 g2.drawString("DRAW", 360, 300);
+                resetButton.draw(g2);
             }
         }
     }

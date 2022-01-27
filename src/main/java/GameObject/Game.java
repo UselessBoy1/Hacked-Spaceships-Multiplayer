@@ -12,7 +12,7 @@ public class Game implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final int ID;
+    private final long ID;
     private boolean ready = false;
     private int playerId;
 
@@ -32,7 +32,7 @@ public class Game implements Serializable {
 
     private String winner = NONE;
 
-    public Game(int id) {
+    public Game(long id) {
         ID = id;
     }
 
@@ -112,7 +112,7 @@ public class Game implements Serializable {
         this.ready = ready;
     }
 
-    public int getID() {
+    public long getID() {
         return ID;
     }
 

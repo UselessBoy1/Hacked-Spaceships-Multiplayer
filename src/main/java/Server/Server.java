@@ -12,8 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
     private ServerSocket serverSocket;
-    private int idCounter = 0;
-    private final Map<Integer, Game> gamesMap = new ConcurrentHashMap<>();
+    private long idCounter = 0;
+    private long gameId = 1;
+    private final Map<Long, Game> gamesMap = new ConcurrentHashMap<>();
 
     public void start() throws IOException {
         InetAddress address = InetAddress.getByName("192.168.0.105");
@@ -25,30 +26,24 @@ public class Server {
             // wait for new client
             Socket newClient = serverSocket.accept();
 
-            int gameId = idCounter / 2 + 1;
-            // make sure that will be created new game if client connects after idCount--;
-            while (gamesMap.containsKey(gameId) && gamesMap.get(gameId).isReady()) {
-                gameId++;
-            }
-            int playerId = 1;
             idCounter++;
-
             System.out.println("[SERVER] client "  + idCounter + " joined");
 
-            // if idCounter is odd -> first player joined -> make new game
-            if (idCounter % 2 == 1) {
+            if ( ! gamesMap.containsKey(gameId)) {
                 gamesMap.put(gameId, new Game(gameId));
                 System.out.println("[SERVER] create game " + gameId);
+
+                // start new thread which handles first player
+                new ClientHandler(newClient, 1, gameId, idCounter).start();
             }
-            // if idCounter is even -> second player joined -> start new game and give second player different id
             else {
                 gamesMap.get(gameId).setReady(true);
                 System.out.println("[SERVER] game " + gameId + " is ready to play");
-                playerId = 2;
-            }
+                // start new thread which handles second player
+                new ClientHandler(newClient, 2, gameId, idCounter).start();
 
-            // start new thread which handles one client
-            new ClientHandler(newClient, playerId, gameId, idCounter).start();
+                gameId++;
+            }
         }
     }
 
@@ -59,12 +54,12 @@ public class Server {
     private class ClientHandler extends Thread {
         private final Socket clientSocket;
         private final int PLAYER_ID;
-        private final int GAME_ID;
-        private final int SOCKET_ID;
+        private final long GAME_ID;
+        private final long SOCKET_ID;
         private final ObjectOutputStream outputToClient;
         private final ObjectInputStream inputFromClient;
 
-        public ClientHandler(Socket socket, int playerId, int gameId, int socketId) throws IOException {
+        public ClientHandler(Socket socket, int playerId, long gameId, long socketId) throws IOException {
             clientSocket = socket;
             PLAYER_ID = playerId;
             GAME_ID = gameId;
@@ -116,7 +111,6 @@ public class Server {
                 e.printStackTrace();
             }
             System.out.println("[SERVER] client " + SOCKET_ID + " disconnected");
-            idCounter--;
             if (gamesMap.containsKey(GAME_ID)) {
                 gamesMap.remove(GAME_ID);
                 System.out.println("[SERVER] destroying game " + GAME_ID);

@@ -1,6 +1,7 @@
 package Client;
 
 import Client.Handlers.KeyHandler;
+import Client.Handlers.MouseHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,14 +13,17 @@ public class GamePanel extends JPanel implements Runnable {
 
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();
+    MouseHandler mouseHandler = new MouseHandler();
 
-    Level level = new Level(keyHandler);
+    Level level = new Level(keyHandler, mouseHandler);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         this.setDoubleBuffered(true);
         this.setFocusable(true);
         this.addKeyListener(keyHandler);
+        this.addMouseListener(mouseHandler);
+        this.addMouseMotionListener(mouseHandler);
     }
 
     public void startGameThread() {

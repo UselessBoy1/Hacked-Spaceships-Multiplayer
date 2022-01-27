@@ -1,6 +1,7 @@
 package Client;
 
 import Client.Handlers.KeyHandler;
+import Client.Handlers.MouseHandler;
 import Client.Players.LocalPlayer;
 import GameObject.Game;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ class LevelTest {
 
     @Test
     void goodWhenClientConnectsToServer() {
-        Level level = new Level(new KeyHandler());
+        Level level = new Level(new KeyHandler(), new MouseHandler());
         level.update();
 
         assertEquals("waiting", level.getState());
