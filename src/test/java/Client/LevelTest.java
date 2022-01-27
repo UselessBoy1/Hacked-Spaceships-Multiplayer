@@ -1,6 +1,7 @@
 package Client;
 
 import Client.Handlers.KeyHandler;
+import Client.Players.LocalPlayer;
 import GameObject.Game;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class LevelTest {
 
     @Test
-    public void goodWhenClientConnectsToServer() {
+    void goodWhenClientConnectsToServer() {
         Level level = new Level(new KeyHandler());
         level.update();
 
@@ -19,7 +20,7 @@ class LevelTest {
     }
 
     @Test
-    public void goodWhenClientReceivesGameObjFromServer() throws IOException, ClassNotFoundException {
+    void goodWhenClientReceivesGameObjFromServer() throws IOException, ClassNotFoundException {
         SocketClient socketClient = new SocketClient();
         socketClient.startConnection("192.168.0.105", 6666);
         Game game = socketClient.sendAndReceiveGame(null);

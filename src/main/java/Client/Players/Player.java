@@ -27,8 +27,9 @@ public class Player {
     protected int animationCounter = 0;
 
     public ArrayList<Bullet> bullets = new ArrayList<>();
-//    public ArrayList<Point> bulletsPos = new ArrayList<>();
     protected boolean lostBullet = false;
+    public boolean isBoom = false;
+    public int boomAnimationCounter = 0;
 
     // opponent constructor
     public Player() {
@@ -82,6 +83,7 @@ public class Player {
             b.draw(g2);
         }
     }
+
     public Point getPos() {
         return new Point(x, y);
     }
@@ -93,6 +95,7 @@ public class Player {
     public void decreaseHp(int val) {
         hp -= val;
     }
+
     public void draw(Graphics2D g2) {
         animationCounter++;
         if (animationCounter >= 58) {
@@ -103,6 +106,14 @@ public class Player {
 
     public void drawHpBar(Graphics2D g2) {
         hpBar.draw(g2);
+    }
+
+    public void drawBoomAnimation(Graphics2D g2) {
+        boomAnimationCounter++;
+        if (boomAnimationCounter >= 116) {
+            isBoom = false;
+        }
+        g2.drawImage(boomImages[boomAnimationCounter / 12], x, y, null);
     }
 
     protected void loadAllImages(String imgFolderAndFilePathName) {

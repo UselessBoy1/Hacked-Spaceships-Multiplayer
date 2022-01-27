@@ -8,8 +8,12 @@ import GameObject.Game;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class Level {
@@ -34,9 +38,15 @@ public class Level {
     private Game gameObjFromServer;
     private int playerId;
 
+    protected ArrayList<Player> boomPlayers = new ArrayList<>();
+    protected ArrayList<Hit> bulletHits = new ArrayList<>();
+    protected final int NUM_OF_IMAGES = 11;
+    protected BufferedImage[] boomImages = new BufferedImage[NUM_OF_IMAGES];
+
     public Level(KeyHandler kH) {
         backgroundImage = loadBackgroundImage("/level_background/background_l1.png");
         keyHandler = kH;
+        loadBoomImages();
     }
 
     // for test
@@ -74,7 +84,9 @@ public class Level {
                 localPlayer.move();
                 localPlayer.moveBullets();
                 opponentPlayer.refreshHp();
-                checkGameState();
+
+                gameObjFromServer.setWinner(checkGameWinner());
+
                 checkLocalPlayerBulletsHits();
 
                 if (playerId == 1) {
@@ -136,30 +148,39 @@ public class Level {
         }
     }
 
-    private void checkGameState() {
+    private String checkGameWinner() {
         if (localPlayer.collision(opponentPlayer)) {
             localPlayer.setHp(0);
             opponentPlayer.setHp(0);
         }
 
         if (localPlayer.getHp() <= 0 && opponentPlayer.getHp() <= 0) {
-            gameObjFromServer.setWinner(Game.DRAW);
+            startBoomAnimation(localPlayer);
+            startBoomAnimation(opponentPlayer);
+            return Game.DRAW;
         }
         else if (localPlayer.getHp() <= 0) {
-            if (playerId == 1) gameObjFromServer.setWinner(Game.PLAYER_2);
-            else gameObjFromServer.setWinner(Game.PLAYER_1);
+            startBoomAnimation(localPlayer);
+            if (playerId == 1)
+                return Game.PLAYER_2;
+            else
+                return Game.PLAYER_1;
         }
         else if (opponentPlayer.getHp() <= 0){
-            if (playerId == 1) gameObjFromServer.setWinner(Game.PLAYER_1);
-            else gameObjFromServer.setWinner(Game.PLAYER_2);
+            startBoomAnimation(opponentPlayer);
+            if (playerId == 1)
+                return Game.PLAYER_1;
+            else
+                return Game.PLAYER_2;
         }
+        return Game.NONE;
     }
 
     private void checkLocalPlayerBulletsHits() {
         for (int i = 0; i < localPlayer.bullets.size(); ++i) {
             Bullet localPlayerBullet = localPlayer.bullets.get(i);
             if (localPlayerBullet.hit(opponentPlayer)) {
-                // TODO draw hit
+                startDrawingHit(localPlayerBullet.x, localPlayerBullet.y, localPlayerBullet.hitDrawScale);
                 localPlayer.bullets.remove(i);
                 i--;
                 opponentPlayer.decreaseHp(localPlayerBullet.getPower());
@@ -194,6 +215,9 @@ public class Level {
 
                     localPlayer.drawHpBar(g2);
                     opponentPlayer.drawHpBar(g2);
+
+                    drawHits(g2);
+                    drawAllBoomAnimations(g2);
                 }
                 g2.setColor(Color.black);
                 g2.setFont(new Font("FreeSans", Font.BOLD, 40));
@@ -203,6 +227,8 @@ public class Level {
             case WIN -> {
                 localPlayer.draw(g2);
                 localPlayer.drawBullets(g2);
+                drawHits(g2);
+                drawAllBoomAnimations(g2);
                 g2.setColor(Color.green);
                 g2.setFont(font);
                 g2.drawString("WIN", 390, 300);
@@ -210,11 +236,15 @@ public class Level {
             case LOSE -> {
                 opponentPlayer.draw(g2);
                 opponentPlayer.drawBullets(g2);
+                drawHits(g2);
+                drawAllBoomAnimations(g2);
                 g2.setColor(new Color(230, 0, 0));
                 g2.setFont(font);
                 g2.drawString("LOSE", 360, 300);
             }
             case DRAW -> {
+                drawHits(g2);
+                drawAllBoomAnimations(g2);
                 g2.setColor(Color.darkGray);
                 g2.setFont(font);
                 g2.drawString("DRAW", 360, 300);
@@ -222,7 +252,75 @@ public class Level {
         }
     }
 
+    private void startBoomAnimation(Player p) {
+        p.isBoom = true;
+        boomPlayers.add(p);
+    }
 
+    private void drawAllBoomAnimations(Graphics2D g2) {
+        for (int i = 0; i < boomPlayers.size(); ++i) {
+            Player p = boomPlayers.get(i);
+            p.drawBoomAnimation(g2);
+            if (!p.isBoom) {
+                boomPlayers.remove(i);
+                --i;
+            }
+        }
+    }
+
+    private class Hit {
+        private final BufferedImage[] hitImages = Arrays.copyOf(boomImages, NUM_OF_IMAGES);
+        private final int x, y;
+        private int boomCounter = 0;
+        public boolean isBoom = true;
+
+        public Hit(int x, int y, double scale) {
+            this.x = x - 5;
+            this.y = y;
+            scaleBoomImages(scale);
+        }
+
+        public void drawBoomAnimation(Graphics2D g2) {
+            boomCounter++;
+            if (boomCounter >= 40) {
+                isBoom = false;
+            }
+            g2.drawImage(hitImages[boomCounter / 4], x, y, null);
+        }
+
+        protected void scaleBoomImages(double scale) {
+            for (int i = 0; i < hitImages.length; ++i) {
+                int w = hitImages[i].getWidth();
+                int h = hitImages[i].getHeight();
+                int integerScale = (int) Math.ceil(scale);
+                BufferedImage after = new BufferedImage(w * integerScale, h * integerScale, BufferedImage.TYPE_INT_ARGB);
+                AffineTransform at = new AffineTransform();
+                at.scale(scale, scale);
+                AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+                after = scaleOp.filter(hitImages[i], after);
+                hitImages[i] = after;
+            }
+        }
+    }
+    private void startDrawingHit(int x, int y, double scale) {
+        bulletHits.add(new Hit(x, y, scale));
+    }
+    private void drawHits(Graphics2D g2) {
+        for (int i = 0; i < bulletHits.size(); ++i) {
+            Hit h = bulletHits.get(i);
+            h.drawBoomAnimation(g2);
+            if (!h.isBoom) {
+                bulletHits.remove(i);
+                --i;
+            }
+        }
+    }
+
+    private void loadBoomImages() {
+        for (int i = 1; i <= NUM_OF_IMAGES; ++i) {
+            boomImages[i - 1] = loadBackgroundImage("/boom_animation/boom_" + i + ".png");
+        }
+    }
     private BufferedImage loadBackgroundImage(String path) {
         BufferedImage bg = null;
         try {
