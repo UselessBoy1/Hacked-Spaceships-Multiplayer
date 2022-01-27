@@ -62,7 +62,7 @@ public class Level {
         switch (state) {
             case CONNECTING -> {
                 try {
-                    socketClient.startConnection("192.168.0.105", 6666);
+                    socketClient.startConnection();
                     gameObjFromServer = socketClient.sendAndReceiveGame(null);
                     playerId = gameObjFromServer.getPlayerId();
                     state = WAITING;
@@ -121,6 +121,7 @@ public class Level {
                             case Game.PLAYER_1 -> state = WIN;
                             case Game.PLAYER_2 -> state = LOSE;
                         }
+                        mouseHandler.clicked = false;
                     }
                 }
                 else { // 2
@@ -138,6 +139,7 @@ public class Level {
                             case Game.PLAYER_1 -> state = LOSE;
                             case Game.PLAYER_2 -> state = WIN;
                         }
+                        mouseHandler.clicked = false;
                     }
                 }
             }

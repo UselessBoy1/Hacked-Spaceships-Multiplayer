@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
@@ -17,8 +18,17 @@ public class Server {
     private final Map<Long, Game> gamesMap = new ConcurrentHashMap<>();
 
     public void start() throws IOException {
-        InetAddress address = InetAddress.getByName("192.168.0.105");
-        serverSocket = new ServerSocket(6666, 50, address);
+        Properties properties = new Properties();
+        try (InputStream fileIn = getClass().getResourceAsStream("/app.config")){
+            properties.load(fileIn);
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        String ip = properties.getProperty("ip");
+        InetAddress address = InetAddress.getByName(ip);
+        int port = Integer.parseInt(properties.getProperty("port"));
+
+        serverSocket = new ServerSocket(port, 50, address);
 
         System.out.println("[SERVER] is running");
 
