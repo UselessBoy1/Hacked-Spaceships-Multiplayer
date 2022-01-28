@@ -12,19 +12,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LevelTest {
 
-    @Test
-    void goodWhenClientConnectsToServer() {
-        Level level = new Level(new KeyHandler(), new MouseHandler());
-        level.update();
-
-        assertEquals("waiting", level.getState());
-    }
-
-    @Test
-    void goodWhenClientReceivesGameObjFromServer() throws IOException, ClassNotFoundException {
-        SocketClient socketClient = new SocketClient();
-        socketClient.startConnection();
-        Game game = socketClient.sendAndReceiveGame(null);
-        assertNotNull(game);
-    }
+//    @Test
+//    void goodWhenClientConnectsToServer() {
+//        Level level = new Level(new KeyHandler(), new MouseHandler());
+//        level.update();
+//
+//        assertEquals("waiting", level.getState());
+//    }
+//
+//    @Test
+//    void goodWhenClientReceivesGameObjFromServer() throws IOException, ClassNotFoundException {
+//        SocketClient socketClient = new SocketClient();
+//        socketClient.startConnection();
+//        Game game = socketClient.sendAndReceiveGame(null);
+//        assertNotNull(game);
+//    }
 }
