@@ -54,7 +54,7 @@ public class Bullet implements Serializable {
     }
 
     public void move() {
-        if (goDown) pos.x += speed;
+        if (goDown) pos.y += speed;
         else pos.y -= speed;
     }
 
@@ -64,11 +64,22 @@ public class Bullet implements Serializable {
     }
 
     public boolean hit(Player target) {
-        if (this.pos.x > (target.pos.x + target.SPECIAL_POINT_X1) && (this.pos.x + 5) < (target.pos.x + target.SPECIAL_POINT_X2))
-            if (this.pos.y > target.pos.y && (this.pos.y + 5) < (target.pos.y + target.HEIGHT))
+        if (this.pos.x > (target.pos.x + target.SPECIAL_POINT_X1) && (this.pos.x + this.width) < (target.pos.x + target.SPECIAL_POINT_X2)) {
+            if (this.pos.y > target.pos.y && (this.pos.y) < (target.pos.y + target.HEIGHT))
                 return true;
-        if (this.pos.x > target.pos.x && (this.pos.x + 5) < (target.pos.x + target.WIDTH))
-            return this.pos.y > (target.pos.y + target.SPECIAL_POINT_Y1) && (this.pos.y + 5) < (target.pos.y + target.SPECIAL_POINT_Y2);
+
+            // for draw opponent hits
+            if (this.goDown && (this.pos.y + this.height + 5) > target.pos.y && (this.pos.y) < (target.pos.y + target.HEIGHT))
+                return true;
+        }
+        if (this.pos.x > target.pos.x && (this.pos.x + this.width) < (target.pos.x + target.WIDTH)) {
+            if (this.pos.y > (target.pos.y + target.SPECIAL_POINT_Y1) && (this.pos.y) < (target.pos.y + target.SPECIAL_POINT_Y2))
+                return true;
+
+            // for draw opponent hits
+            if (this.goDown && ((this.pos.y + this.height - 5) > (target.pos.y + target.SPECIAL_POINT_Y1) && (this.pos.y) < (target.pos.y + target.SPECIAL_POINT_Y2)))
+                return true;
+        }
         return false;
     }
 
@@ -80,6 +91,9 @@ public class Bullet implements Serializable {
         return pos;
     }
 
+    public int getHeight() {
+        return height;
+    }
     public double getHitDrawScale() {
         return hitDrawScale;
     }

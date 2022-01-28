@@ -87,7 +87,8 @@ public class Game {
 
                 gameDataObjectFromServer.setWinner(checkGameWinner());
 
-                checkBulletsHits(localPlayer, opponentPlayer);
+                checkBulletsHits(localPlayer, opponentPlayer, true);
+                checkBulletsHits(opponentPlayer, localPlayer, false);
 
                 if (playerId == 1) {
                     gameDataObjectFromServer.updatePlayer1(localPlayer, opponentPlayer.getHp());
@@ -195,16 +196,21 @@ public class Game {
     }
 
     // TODO refactor
-    private void checkBulletsHits(Player source, Player target) {
+    private void checkBulletsHits(Player source, Player target, boolean hpDec) {
         // checks if bullet hits the target -> start drawing animation and decreases hp if necessary
 
         for (int i = 0; i < source.bullets.size(); ++i) {
             Bullet bullet = source.bullets.get(i);
             if (bullet.hit(target)) {
-                hitsAndBoomAnimationController.startDrawingHit(bullet.getPos().x, bullet.getPos().y, bullet.getHitDrawScale());
+                if (hpDec) {
+                    hitsAndBoomAnimationController.startDrawingHit(bullet.getPos().x, bullet.getPos().y, bullet.getHitDrawScale());
+                    target.decreaseHp(bullet.getPower());
+                }
+                else {
+                    hitsAndBoomAnimationController.startDrawingHit(bullet.getPos().x, bullet.getPos().y + bullet.getHeight(), bullet.getHitDrawScale());
+                }
                 source.bullets.remove(i);
                 i--;
-                target.decreaseHp(bullet.getPower());
             }
         }
     }
