@@ -11,12 +11,12 @@ public class Bullet implements Serializable {
     @Serial
     private static final long serialVersionUID = 2L;
 
-    public Point pos;
-    public int width = 5, height = 30;
-    public boolean goDown;
-    protected int speed = 6;
-    protected int power = 30;
-    public double hitDrawScale = 0.2;
+    private final Point pos;
+    private final int width = 5, height = 30;
+    private boolean goDown;
+    final int speed = 6;
+    final int power = 30;
+    final double hitDrawScale = 0.2;
 
     public Bullet(int x, int y, boolean goDown) {
         this.pos = new Point(x, y - 10);
@@ -35,16 +35,15 @@ public class Bullet implements Serializable {
     }
 
     public static void refreshBulletsPos(LinkedList<Bullet> bullets) {
-        for (int i = 0; i < bullets.size(); ++i) {
-            bullets.get(i).pos.x = GamePanel.WIDTH - bullets.get(i).width - bullets.get(i).pos.x;
-            bullets.get(i).pos.y = GamePanel.HEIGHT - bullets.get(i).height - bullets.get(i).pos.y;
-            bullets.get(i).goDown = true;
+        for (Bullet bullet : bullets) {
+            bullet.pos.x = GamePanel.WIDTH - bullet.width - bullet.pos.x;
+            bullet.pos.y = GamePanel.HEIGHT - bullet.height - bullet.pos.y;
+            bullet.goDown = true;
         }
     }
 
     public static void drawBullets(Graphics2D g2, LinkedList<Bullet> bullets) {
-        for (int i = 0; i < bullets.size(); ++i) {
-            Bullet b = bullets.get(i);
+        for (Bullet b : bullets) {
             b.draw(g2);
         }
     }
@@ -75,5 +74,13 @@ public class Bullet implements Serializable {
 
     public int getPower() {
         return power;
+    }
+
+    public Point getPos() {
+        return pos;
+    }
+
+    public double getHitDrawScale() {
+        return hitDrawScale;
     }
 }

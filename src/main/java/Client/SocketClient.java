@@ -1,6 +1,6 @@
 package Client;
 
-import GameObject.Game;
+import GameDataObject.GameDataObject;
 
 import java.io.*;
 import java.net.Socket;
@@ -31,14 +31,14 @@ public class SocketClient {
         inputFromServer = new ObjectInputStream(new BufferedInputStream(clientSocket.getInputStream()));
     }
 
-    public Game sendAndReceiveGame(Game game) throws IOException, ClassNotFoundException {
+    public GameDataObject sendAndReceiveGame(GameDataObject gameDataObject) throws IOException, ClassNotFoundException {
         // send
         outputToServer.reset();
-        outputToServer.writeObject(game);
+        outputToServer.writeObject(gameDataObject);
         outputToServer.flush();
 
         // receive
-        return (Game) inputFromServer.readObject();
+        return (GameDataObject) inputFromServer.readObject();
     }
 
     public void stopConnection() throws IOException {

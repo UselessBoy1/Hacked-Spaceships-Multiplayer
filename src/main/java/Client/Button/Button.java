@@ -3,14 +3,13 @@ package Client.Button;
 import java.awt.*;
 
 public class Button {
-    final int X, Y;
-    final int WIDTH, HEIGHT;
-    final Color COLOR;
-    final Color FOCUS_COLOR;
-    final String TEXT;
-    Color currentColor;
-
-    Font font;
+    private final int X, Y;
+    private final int WIDTH, HEIGHT;
+    private final String TEXT;
+    private final Font font;
+    private final Color COLOR;
+    private final Color FOCUS_COLOR;
+    private Color currentColor;
 
     public Button(int x, int y, int width, int height, Color color, Color focusColor, String text, int fontSize) {
         X = x; Y = y;

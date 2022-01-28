@@ -1,4 +1,4 @@
-package GameObject;
+package GameDataObject;
 
 import Client.Players.Bullet;
 import Client.Players.LocalPlayer;
@@ -8,13 +8,13 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedList;
 
-// Game is an object which is sent between server and client.
+// GameDataObject is an object which is sent between server and client.
 // It contains info like:
 //     - players positions
 //     - players hp
 //     - bullets lists
 //     - current winner (or no winner or draw)
-public class Game implements Serializable {
+public class GameDataObject implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -38,44 +38,44 @@ public class Game implements Serializable {
 
     private String winner = NONE;
 
-    public Game(long id) {
+    public GameDataObject(long id) {
         ID = id;
     }
 
     // method which runs on server
-    // updates server's Game object with info from player 1
-    public Game determineAndUpdate1(Game gameFromClient) {
-        if (!this.ready && gameFromClient.isReady()) {
+    // updates server's GameDataObject with info from player 1
+    public GameDataObject determineAndUpdate1(GameDataObject gameDataObjectFromClient) {
+        if (!this.ready && gameDataObjectFromClient.isReady()) {
             this.ready = true;
         }
-        this.player1Position = gameFromClient.player1Position;
-        this.player2HP = gameFromClient.player2HP;
-        this.players1BulletsPositions = gameFromClient.players1BulletsPositions;
+        this.player1Position = gameDataObjectFromClient.player1Position;
+        this.player2HP = gameDataObjectFromClient.player2HP;
+        this.players1BulletsPositions = gameDataObjectFromClient.players1BulletsPositions;
 
         if (this.winner.equals(NONE)) {
-            this.winner = gameFromClient.getWinner();
+            this.winner = gameDataObjectFromClient.getWinner();
         }
         return this;
     }
 
     // method which runs on server
-    // updates server's Game object with info from player 2
-    public Game determineAndUpdate2(Game gameFromClient) {
-        if (!this.ready && gameFromClient.isReady()) {
+    // updates server's GameDataObject with info from player 2
+    public GameDataObject determineAndUpdate2(GameDataObject gameDataObjectFromClient) {
+        if (!this.ready && gameDataObjectFromClient.isReady()) {
             this.ready = true;
         }
-        this.player1HP = gameFromClient.player1HP;
-        this.player2Position = gameFromClient.player2Position;
-        this.players2BulletsPositions = gameFromClient.players2BulletsPositions;
+        this.player1HP = gameDataObjectFromClient.player1HP;
+        this.player2Position = gameDataObjectFromClient.player2Position;
+        this.players2BulletsPositions = gameDataObjectFromClient.players2BulletsPositions;
 
         if (this.winner.equals(NONE)) {
-            this.winner = gameFromClient.getWinner();
+            this.winner = gameDataObjectFromClient.getWinner();
         }
         return this;
     }
 
     // method which runs on client side
-    // update client's Game object with player 1 local info
+    // update client's GameDataObject with player 1 local info
     public void updatePlayer1(LocalPlayer player, int opponentHp) {
         player1Position = player.getPos();
         player2HP = opponentHp;
@@ -83,7 +83,7 @@ public class Game implements Serializable {
     }
 
     // method which runs on client side
-    // update client's Game object with player 2 local info
+    // update client's GameDataObject with player 2 local info
     public void updatePlayer2(LocalPlayer player, int opponentHp) {
         player2Position = player.getPos();
         player1HP = opponentHp;

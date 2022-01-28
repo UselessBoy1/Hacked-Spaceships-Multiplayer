@@ -9,28 +9,25 @@ import java.util.Objects;
 
 public class Player {
     // player position
-    public Point pos;
     // special points are used to better collision and bullets hits detection
     public final int SPECIAL_POINT_X1 = 49, SPECIAL_POINT_X2 = 74;
     public final int SPECIAL_POINT_Y1 = 38, SPECIAL_POINT_Y2 = 63;
     public final int WIDTH = 120, HEIGHT = 120;
-    public String name;
+    String name;
 
-    protected final int SPEED = 6;
+    Point pos;
 
-    protected HpBar hpBar;
-    protected int hp = 200;
+    final int SPEED = 6;
 
-    protected final int NUM_OF_IMAGES = 11;
-    protected BufferedImage[] images = new BufferedImage[NUM_OF_IMAGES];
-    protected BufferedImage[] boomImages = new BufferedImage[NUM_OF_IMAGES];
-    protected int animationCounter = 0;
+    HpBar hpBar;
+    int hp = 200;
+
+    final int NUM_OF_IMAGES = 11;
+    BufferedImage[] images = new BufferedImage[NUM_OF_IMAGES];
+    BufferedImage[] boomImages = new BufferedImage[NUM_OF_IMAGES];
+    int animationCounter = 0;
 
     public LinkedList<Bullet> bullets = new LinkedList<>();
-
-    // TODO
-    public boolean isBoom = false;
-    public int boomAnimationCounter = 0;
 
     // opponent constructor
     public Player() {
@@ -79,15 +76,6 @@ public class Player {
 
     public void drawHpBar(Graphics2D g2) {
         hpBar.draw(g2);
-    }
-
-    // TODO refactor
-    public void drawBoomAnimation(Graphics2D g2) {
-        boomAnimationCounter++;
-        if (boomAnimationCounter >= 116) {
-            isBoom = false;
-        }
-        g2.drawImage(boomImages[boomAnimationCounter / 12], pos.x, pos.y, null);
     }
 
     protected void loadAllImages(String imgFolderAndFilePathName) {

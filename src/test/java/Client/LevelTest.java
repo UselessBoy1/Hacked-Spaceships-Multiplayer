@@ -1,23 +1,13 @@
 package Client;
 
-import Client.Handlers.KeyHandler;
-import Client.Handlers.MouseHandler;
-import Client.Players.LocalPlayer;
-import GameObject.Game;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 class LevelTest {
 
 //    @Test
 //    void goodWhenClientConnectsToServer() {
-//        Level level = new Level(new KeyHandler(), new MouseHandler());
-//        level.update();
+//        Game game = new Game(new KeyHandler(), new MouseHandler());
+//        game.update();
 //
-//        assertEquals("waiting", level.getState());
+//        assertEquals("waiting", game.getState());
 //    }
 //
 //    @Test

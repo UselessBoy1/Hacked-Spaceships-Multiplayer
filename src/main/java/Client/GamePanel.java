@@ -1,5 +1,6 @@
 package Client;
 
+import Client.Game.Game;
 import Client.Handlers.KeyHandler;
 import Client.Handlers.MouseHandler;
 
@@ -8,20 +9,20 @@ import java.awt.*;
 
 // this class uses build-in JPanel
 // it handles:
-//   - game loop -> draw and update Level class (game logic) on screen
+//   - game loop -> draw and update Game class (game logic) on screen
 //   - keyboards and mouse events (handlers are written in different class)
 public class GamePanel extends JPanel implements Runnable {
     // widow size
     public static final int WIDTH = 1000;
     public static final int HEIGHT = 750;
-    final int FPS = 60;
+    public static final int FPS = 60;
 
-    Thread gameThread;
-    KeyHandler keyHandler = new KeyHandler();
-    MouseHandler mouseHandler = new MouseHandler();
+    private Thread gameThread;
+    private final KeyHandler keyHandler = new KeyHandler();
+    private final MouseHandler mouseHandler = new MouseHandler();
 
-    // game logic is in Level class
-    Level level = new Level(keyHandler, mouseHandler);
+    // game logic is in Game class
+    private final Game game = new Game(keyHandler, mouseHandler);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -56,14 +57,14 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     private void update() {
-        level.update();
+        game.update();
     }
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D graphics2D = (Graphics2D) g;
 
-        level.draw(graphics2D);
+        game.draw(graphics2D);
 
         graphics2D.dispose();
         Toolkit.getDefaultToolkit().sync();

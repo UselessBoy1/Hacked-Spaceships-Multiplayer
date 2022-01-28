@@ -1,24 +1,22 @@
-package Client;
+package Client.Game;
 
+import Client.GamePanel;
 import Client.Handlers.KeyHandler;
 import Client.Handlers.MouseHandler;
 import Client.Players.Bullet;
 import Client.Players.LocalPlayer;
 import Client.Players.Player;
-import GameObject.Game;
+import Client.SocketClient;
+import GameDataObject.GameDataObject;
 import Client.Button.Button;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.Objects;
 
-public class Level {
+public class Game {
     private final BufferedImage backgroundImage;
     private final KeyHandler keyHandler;
     private Player opponentPlayer;
@@ -35,25 +33,20 @@ public class Level {
     private String state = CONNECTING;
 
     private final SocketClient socketClient = new SocketClient();
-    private Game gameObjFromServer;
+    private GameDataObject gameDataObjectFromServer;
     private int playerId;
 
-    // TODO refactor to new class
-    private final LinkedList<Player> boomPlayers = new LinkedList<>();
-    private final LinkedList<Hit> bulletHits = new LinkedList<>();
-    private final int NUM_OF_IMAGES = 11;
-    private final BufferedImage[] boomImages = new BufferedImage[NUM_OF_IMAGES];
+    private final HitsAndBoomAnimationController hitsAndBoomAnimationController= new HitsAndBoomAnimationController();
 
     private Button resetButton;
     private final MouseHandler mouseHandler;
 
-    int connectionWithServerCounter = 0;
+    private int connectionWithServerCounter = 0;
 
-    public Level(KeyHandler kH, MouseHandler mH) {
+    public Game(KeyHandler kH, MouseHandler mH) {
         mouseHandler = mH;
         backgroundImage = loadBackgroundImage("/level_background/background_l1.png");
         keyHandler = kH;
-        loadBoomImages();
     }
 
     // for test
@@ -66,8 +59,8 @@ public class Level {
             case CONNECTING -> {
                 try {
                     socketClient.startConnection();
-                    gameObjFromServer = socketClient.sendAndReceiveGame(null);
-                    playerId = gameObjFromServer.getPlayerId();
+                    gameDataObjectFromServer = socketClient.sendAndReceiveGame(null);
+                    playerId = gameDataObjectFromServer.getPlayerId();
                     state = WAITING;
                     localPlayer = new LocalPlayer(keyHandler);
                 } catch (IOException | ClassNotFoundException e) {
@@ -77,8 +70,8 @@ public class Level {
             }
             case WAITING -> {
                 try {
-                    gameObjFromServer = socketClient.sendAndReceiveGame(gameObjFromServer);
-                    if (gameObjFromServer.isReady()) {
+                    gameDataObjectFromServer = socketClient.sendAndReceiveGame(gameDataObjectFromServer);
+                    if (gameDataObjectFromServer.isReady()) {
                         state = GAME;
                         opponentPlayer = new Player();
                     }
@@ -92,59 +85,59 @@ public class Level {
                 Bullet.moveBullets(localPlayer.bullets);
                 opponentPlayer.refreshHp();
 
-                gameObjFromServer.setWinner(checkGameWinner());
+                gameDataObjectFromServer.setWinner(checkGameWinner());
 
                 checkBulletsHits(localPlayer, opponentPlayer);
 
                 if (playerId == 1) {
-                    gameObjFromServer.updatePlayer1(localPlayer, opponentPlayer.getHp());
+                    gameDataObjectFromServer.updatePlayer1(localPlayer, opponentPlayer.getHp());
                 }
                 else { // 2
-                    gameObjFromServer.updatePlayer2(localPlayer, opponentPlayer.getHp());
+                    gameDataObjectFromServer.updatePlayer2(localPlayer, opponentPlayer.getHp());
                 }
 
                 connectionWithServerCounter++;
                 if (connectionWithServerCounter == 2) {
                     connectionWithServerCounter = 0;
                     try {
-                        gameObjFromServer = socketClient.sendAndReceiveGame(gameObjFromServer);
+                        gameDataObjectFromServer = socketClient.sendAndReceiveGame(gameDataObjectFromServer);
                     } catch (IOException | ClassNotFoundException e) {
                         System.out.println("Lost connection");
                         state = CONNECTING;
                     }
                     // TODO refactor!!!
                     if (playerId == 1) {
-                        localPlayer.setHp(gameObjFromServer.getPlayer1HP());
-                        opponentPlayer.pos.x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameObjFromServer.getPlayer2Position().x;
-                        opponentPlayer.pos.y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameObjFromServer.getPlayer2Position().y;
-                        opponentPlayer.bullets = gameObjFromServer.getPlayers2BulletsPositions();
+                        localPlayer.setHp(gameDataObjectFromServer.getPlayer1HP());
+                        opponentPlayer.getPos().x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameDataObjectFromServer.getPlayer2Position().x;
+                        opponentPlayer.getPos().y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameDataObjectFromServer.getPlayer2Position().y;
+                        opponentPlayer.bullets = gameDataObjectFromServer.getPlayers2BulletsPositions();
                         Bullet.refreshBulletsPos(opponentPlayer.bullets);
 
-                        String winner = gameObjFromServer.getWinner();
-                        if (!winner.equals(Game.NONE)) {
+                        String winner = gameDataObjectFromServer.getWinner();
+                        if (!winner.equals(GameDataObject.NONE)) {
                             resetButton = new Button(340, 400, 320, 100, Color.BLUE, new Color(0, 0, 150), "PLAY AGAIN", 50);
                             switch (winner) {
-                                case Game.DRAW -> state = DRAW;
-                                case Game.PLAYER_1 -> state = WIN;
-                                case Game.PLAYER_2 -> state = LOSE;
+                                case GameDataObject.DRAW -> state = DRAW;
+                                case GameDataObject.PLAYER_1 -> state = WIN;
+                                case GameDataObject.PLAYER_2 -> state = LOSE;
                             }
                             mouseHandler.clicked = false;
                         }
                     } else { // 2
-                        localPlayer.setHp(gameObjFromServer.getPlayer2HP());
-                        opponentPlayer.pos.x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameObjFromServer.getPlayer1Position().x;
-                        opponentPlayer.pos.y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameObjFromServer.getPlayer1Position().y;
-                        opponentPlayer.bullets = gameObjFromServer.getPlayers1BulletsPositions();
+                        localPlayer.setHp(gameDataObjectFromServer.getPlayer2HP());
+                        opponentPlayer.getPos().x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameDataObjectFromServer.getPlayer1Position().x;
+                        opponentPlayer.getPos().y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameDataObjectFromServer.getPlayer1Position().y;
+                        opponentPlayer.bullets = gameDataObjectFromServer.getPlayers1BulletsPositions();
                         Bullet.refreshBulletsPos(opponentPlayer.bullets);
 
 
-                        String winner = gameObjFromServer.getWinner();
-                        if (!winner.equals(Game.NONE)) {
+                        String winner = gameDataObjectFromServer.getWinner();
+                        if (!winner.equals(GameDataObject.NONE)) {
                             resetButton = new Button(340, 400, 320, 100, Color.BLUE, new Color(0, 0, 150), "PLAY AGAIN", 50);
                             switch (winner) {
-                                case Game.DRAW -> state = DRAW;
-                                case Game.PLAYER_1 -> state = LOSE;
-                                case Game.PLAYER_2 -> state = WIN;
+                                case GameDataObject.DRAW -> state = DRAW;
+                                case GameDataObject.PLAYER_1 -> state = LOSE;
+                                case GameDataObject.PLAYER_2 -> state = WIN;
                             }
                             mouseHandler.clicked = false;
                         }
@@ -180,25 +173,25 @@ public class Level {
         }
 
         if (localPlayer.getHp() <= 0 && opponentPlayer.getHp() <= 0) {
-            startBoomAnimation(localPlayer);
-            startBoomAnimation(opponentPlayer);
-            return Game.DRAW;
+            hitsAndBoomAnimationController.startBoomAnimation(localPlayer.getPos());
+            hitsAndBoomAnimationController.startBoomAnimation(opponentPlayer.getPos());
+            return GameDataObject.DRAW;
         }
         else if (localPlayer.getHp() <= 0) {
-            startBoomAnimation(localPlayer);
+            hitsAndBoomAnimationController.startBoomAnimation(localPlayer.getPos());
             if (playerId == 1)
-                return Game.PLAYER_2;
+                return GameDataObject.PLAYER_2;
             else
-                return Game.PLAYER_1;
+                return GameDataObject.PLAYER_1;
         }
         else if (opponentPlayer.getHp() <= 0){
-            startBoomAnimation(opponentPlayer);
+            hitsAndBoomAnimationController.startBoomAnimation(opponentPlayer.getPos());
             if (playerId == 1)
-                return Game.PLAYER_1;
+                return GameDataObject.PLAYER_1;
             else
-                return Game.PLAYER_2;
+                return GameDataObject.PLAYER_2;
         }
-        return Game.NONE;
+        return GameDataObject.NONE;
     }
 
     // TODO refactor
@@ -208,7 +201,7 @@ public class Level {
         for (int i = 0; i < source.bullets.size(); ++i) {
             Bullet bullet = source.bullets.get(i);
             if (bullet.hit(target)) {
-                startDrawingHit(bullet.pos.x, bullet.pos.y, bullet.hitDrawScale);
+                hitsAndBoomAnimationController.startDrawingHit(bullet.getPos().x, bullet.getPos().y, bullet.getHitDrawScale());
                 source.bullets.remove(i);
                 i--;
                 target.decreaseHp(bullet.getPower());
@@ -244,19 +237,17 @@ public class Level {
                     localPlayer.drawHpBar(g2);
                     opponentPlayer.drawHpBar(g2);
 
-                    drawHits(g2);
-                    drawAllBoomAnimations(g2);
+                    hitsAndBoomAnimationController.draw(g2);
                 }
                 g2.setColor(Color.black);
                 g2.setFont(new Font("FreeSans", Font.BOLD, 40));
-                g2.drawString("GAME: " + gameObjFromServer.getID(), 700, 30);
+                g2.drawString("GAME: " + gameDataObjectFromServer.getID(), 700, 30);
                 g2.drawString("ID: " + playerId, 900, 30);
             }
             case WIN -> {
                 localPlayer.draw(g2);
                 Bullet.drawBullets(g2, localPlayer.bullets);
-                drawHits(g2);
-                drawAllBoomAnimations(g2);
+                hitsAndBoomAnimationController.draw(g2);
                 g2.setColor(Color.green);
                 g2.setFont(new Font("FreeSans", Font.BOLD, 100));
                 g2.drawString("WIN", 390, 300);
@@ -265,16 +256,14 @@ public class Level {
             case LOSE -> {
                 opponentPlayer.draw(g2);
                 Bullet.drawBullets(g2, opponentPlayer.bullets);
-                drawHits(g2);
-                drawAllBoomAnimations(g2);
+                hitsAndBoomAnimationController.draw(g2);
                 g2.setColor(new Color(230, 0, 0));
                 g2.setFont(new Font("FreeSans", Font.BOLD, 100));
                 g2.drawString("LOSE", 360, 300);
                 resetButton.draw(g2);
             }
             case DRAW -> {
-                drawHits(g2);
-                drawAllBoomAnimations(g2);
+                hitsAndBoomAnimationController.draw(g2);
                 g2.setColor(Color.darkGray);
                 g2.setFont(new Font("FreeSans", Font.BOLD, 100));
                 g2.drawString("DRAW", 360, 300);
@@ -283,83 +272,7 @@ public class Level {
         }
     }
 
-    // TODO refactor to new class
     // TODO BUG on second client
-    private void startBoomAnimation(Player p) {
-        p.isBoom = true;
-        boomPlayers.add(p);
-    }
-
-    // TODO refactor to new class
-    private void drawAllBoomAnimations(Graphics2D g2) {
-        for (int i = 0; i < boomPlayers.size(); ++i) {
-            Player p = boomPlayers.get(i);
-            p.drawBoomAnimation(g2);
-            if (!p.isBoom) {
-                boomPlayers.remove(i);
-                --i;
-            }
-        }
-    }
-
-    // TODO refactor to new class
-    private class Hit {
-        private final BufferedImage[] hitImages = Arrays.copyOf(boomImages, NUM_OF_IMAGES);
-        private final int x, y;
-        private int boomCounter = 0;
-        public boolean isBoom = true;
-
-        public Hit(int x, int y, double scale) {
-            this.x = x - 5;
-            this.y = y;
-            scaleBoomImages(scale);
-        }
-
-        public void drawBoomAnimation(Graphics2D g2) {
-            boomCounter++;
-            if (boomCounter >= 40) {
-                isBoom = false;
-            }
-            g2.drawImage(hitImages[boomCounter / 4], x, y, null);
-        }
-
-        protected void scaleBoomImages(double scale) {
-            for (int i = 0; i < hitImages.length; ++i) {
-                int w = hitImages[i].getWidth();
-                int h = hitImages[i].getHeight();
-                int integerScale = (int) Math.ceil(scale);
-                BufferedImage after = new BufferedImage(w * integerScale, h * integerScale, BufferedImage.TYPE_INT_ARGB);
-                AffineTransform at = new AffineTransform();
-                at.scale(scale, scale);
-                AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-                after = scaleOp.filter(hitImages[i], after);
-                hitImages[i] = after;
-            }
-        }
-    }
-
-    // TODO refactor to new class
-    private void startDrawingHit(int x, int y, double scale) {
-        bulletHits.add(new Hit(x, y, scale));
-    }
-
-    // TODO refactor to new class
-    private void drawHits(Graphics2D g2) {
-        for (int i = 0; i < bulletHits.size(); ++i) {
-            Hit h = bulletHits.get(i);
-            h.drawBoomAnimation(g2);
-            if (!h.isBoom) {
-                bulletHits.remove(i);
-                --i;
-            }
-        }
-    }
-    // TODO refactor to new class
-    private void loadBoomImages() {
-        for (int i = 1; i <= NUM_OF_IMAGES; ++i) {
-            boomImages[i - 1] = loadBackgroundImage("/boom_animation/boom_" + i + ".png");
-        }
-    }
 
     private BufferedImage loadBackgroundImage(String path) {
         BufferedImage bg = null;

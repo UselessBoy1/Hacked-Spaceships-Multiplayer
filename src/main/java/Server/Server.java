@@ -1,6 +1,6 @@
 package Server;
 
-import GameObject.Game;
+import GameDataObject.GameDataObject;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -15,7 +15,7 @@ public class Server {
     private ServerSocket serverSocket;
     private long idCounter = 0;
     private long gameId = 1;
-    private final Map<Long, Game> gamesMap = new ConcurrentHashMap<>();
+    private final Map<Long, GameDataObject> gamesMap = new ConcurrentHashMap<>();
 
     public void start() throws IOException {
         Properties properties = new Properties();
@@ -40,7 +40,7 @@ public class Server {
             System.out.println("[SERVER] client "  + idCounter + " joined");
 
             if ( ! gamesMap.containsKey(gameId)) {
-                gamesMap.put(gameId, new Game(gameId));
+                gamesMap.put(gameId, new GameDataObject(gameId));
                 System.out.println("[SERVER] create game " + gameId);
 
                 // start new thread which handles first player
@@ -83,30 +83,30 @@ public class Server {
         public void run() {
             try {
                 // sends to client first game object
-                Game serverGame = gamesMap.get(GAME_ID);
-                serverGame.setPlayerId(PLAYER_ID);
+                GameDataObject serverGameDataObject = gamesMap.get(GAME_ID);
+                serverGameDataObject.setPlayerId(PLAYER_ID);
                 inputFromClient.readObject();
-                outputToClient.writeObject(serverGame);
+                outputToClient.writeObject(serverGameDataObject);
                 outputToClient.flush();
 
-                Game gameFromClient;
+                GameDataObject gameDataObjectFromClient;
                 try {
                     // get game data from client
-                    while ( (gameFromClient = (Game) inputFromClient.readObject()) != null) {
+                    while ( (gameDataObjectFromClient = (GameDataObject) inputFromClient.readObject()) != null) {
                         if ( ! gamesMap.containsKey(GAME_ID)) {
                         // this means that current game no longer exists so player must join to new game
                             break;
                         }
                         outputToClient.reset();
-                        Game gameToSend;
+                        GameDataObject gameDataObjectToSend;
                         if (PLAYER_ID == 1) {
-                            gameToSend = gamesMap.get(GAME_ID).determineAndUpdate1(gameFromClient);
+                            gameDataObjectToSend = gamesMap.get(GAME_ID).determineAndUpdate1(gameDataObjectFromClient);
                         }
                         else { // 2
-                            gameToSend = gamesMap.get(GAME_ID).determineAndUpdate2(gameFromClient);
+                            gameDataObjectToSend = gamesMap.get(GAME_ID).determineAndUpdate2(gameDataObjectFromClient);
                         }
 
-                        outputToClient.writeObject(gameToSend);
+                        outputToClient.writeObject(gameDataObjectToSend);
                         outputToClient.flush();
                     }
 
