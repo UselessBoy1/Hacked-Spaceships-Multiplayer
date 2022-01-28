@@ -1,7 +1,5 @@
 package Client.Players;
 
-import Client.GamePanel;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -10,13 +8,15 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 public class Player {
-    public int x, y;
-    public final int POINT_X1 = 49, POINT_X2 = 74;
-    public final int POINT_Y1 = 38, POINT_Y2 = 63;
-    public int width = 120, height = 120;
+    // player position
+    public Point pos;
+    // special points are used to better collision and bullets hits detection
+    public final int SPECIAL_POINT_X1 = 49, SPECIAL_POINT_X2 = 74;
+    public final int SPECIAL_POINT_Y1 = 38, SPECIAL_POINT_Y2 = 63;
+    public final int WIDTH = 120, HEIGHT = 120;
     public String name;
 
-    protected final int SPEED = 3;
+    protected final int SPEED = 6;
 
     protected HpBar hpBar;
     protected int hp = 200;
@@ -27,38 +27,26 @@ public class Player {
     protected int animationCounter = 0;
 
     public LinkedList<Bullet> bullets = new LinkedList<>();
-    protected boolean lostBullet = false;
+
+    // TODO
     public boolean isBoom = false;
     public int boomAnimationCounter = 0;
 
     // opponent constructor
     public Player() {
         name = "OPPONENT";
-        x = -100;
-        y = -100;
+        pos = new Point(-100, -100);
         hpBar = new HpBar(20, 25, hp, name);
         loadAllImages("red_enemy/enemy1_");
     }
 
     public boolean collision(Player enemy) {
-        if ((enemy.x + enemy.width) > this.x && enemy.x < (this.x + this.width))
-            if ((enemy.y + enemy.height - enemy.POINT_Y2) > this.y && (enemy.y + enemy.POINT_Y1) < (this.y + this.height))
+        if ((enemy.pos.x + enemy.WIDTH) > this.pos.x && enemy.pos.x < (this.pos.x + this.WIDTH))
+            if ((enemy.pos.y + enemy.HEIGHT - enemy.SPECIAL_POINT_Y2) > this.pos.y && (enemy.pos.y + enemy.SPECIAL_POINT_Y1) < (this.pos.y + this.HEIGHT))
                 return true;
-        if ((enemy.x + enemy.POINT_X2) > (this.x + this.POINT_X1) && (enemy.x + enemy.POINT_X1) < (this.x + this.POINT_X2))
-            return (enemy.y + enemy.height) > this.y && enemy.y < (this.y + this.height);
+        if ((enemy.pos.x + enemy.SPECIAL_POINT_X2) > (this.pos.x + this.SPECIAL_POINT_X1) && (enemy.pos.x + enemy.SPECIAL_POINT_X1) < (this.pos.x + this.SPECIAL_POINT_X2))
+            return (enemy.pos.y + enemy.HEIGHT) > this.pos.y && enemy.pos.y < (this.pos.y + this.HEIGHT);
         return false;
-    }
-
-    public void moveBullets() {
-        for (int i = 0; i < bullets.size(); ++i) {
-            Bullet bullet = bullets.get(i);
-            bullet.move();
-            if (bullet.outOfGame()) {
-                lostBullet = true;
-                bullets.remove(i);
-                --i;
-            }
-        }
     }
 
     public void setHp(int val) {
@@ -69,23 +57,8 @@ public class Player {
         hpBar.setHp(hp);
     }
 
-    public void refreshBulletsPos() {
-        for (int i = 0; i < bullets.size(); ++i) {
-            bullets.get(i).x = GamePanel.WIDTH - bullets.get(i).width - bullets.get(i).x;
-            bullets.get(i).y = GamePanel.HEIGHT - bullets.get(i).height - bullets.get(i).y;
-            bullets.get(i).goDown = true;
-        }
-    }
-
-    public void drawBullets(Graphics2D g2) {
-        for (int i = 0; i < bullets.size(); ++i) {
-            Bullet b = bullets.get(i);
-            b.draw(g2);
-        }
-    }
-
     public Point getPos() {
-        return new Point(x, y);
+        return pos;
     }
 
     public int getHp() {
@@ -101,19 +74,20 @@ public class Player {
         if (animationCounter >= 58) {
             animationCounter = 0;
         }
-        g2.drawImage(images[animationCounter / 6], x, y, null);
+        g2.drawImage(images[animationCounter / 6], pos.x, pos.y, null);
     }
 
     public void drawHpBar(Graphics2D g2) {
         hpBar.draw(g2);
     }
 
+    // TODO refactor
     public void drawBoomAnimation(Graphics2D g2) {
         boomAnimationCounter++;
         if (boomAnimationCounter >= 116) {
             isBoom = false;
         }
-        g2.drawImage(boomImages[boomAnimationCounter / 12], x, y, null);
+        g2.drawImage(boomImages[boomAnimationCounter / 12], pos.x, pos.y, null);
     }
 
     protected void loadAllImages(String imgFolderAndFilePathName) {

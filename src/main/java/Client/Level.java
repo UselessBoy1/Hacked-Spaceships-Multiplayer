@@ -38,6 +38,7 @@ public class Level {
     private Game gameObjFromServer;
     private int playerId;
 
+    // TODO refactor to new class
     private final LinkedList<Player> boomPlayers = new LinkedList<>();
     private final LinkedList<Hit> bulletHits = new LinkedList<>();
     private final int NUM_OF_IMAGES = 11;
@@ -86,7 +87,7 @@ public class Level {
             }
             case GAME -> {
                 localPlayer.move();
-                localPlayer.moveBullets();
+                Bullet.moveBullets(localPlayer.bullets);
                 opponentPlayer.refreshHp();
 
                 gameObjFromServer.setWinner(checkGameWinner());
@@ -106,12 +107,13 @@ public class Level {
                     System.out.println("Lost connection");
                     state = CONNECTING;
                 }
+                // TODO refactor!!!
                 if (playerId == 1) {
                     localPlayer.setHp(gameObjFromServer.getPlayer1HP());
-                    opponentPlayer.x = GamePanel.WIDTH - opponentPlayer.width - gameObjFromServer.getPlayer2Position().x;
-                    opponentPlayer.y = GamePanel.HEIGHT - opponentPlayer.height - gameObjFromServer.getPlayer2Position().y;
+                    opponentPlayer.pos.x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameObjFromServer.getPlayer2Position().x;
+                    opponentPlayer.pos.y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameObjFromServer.getPlayer2Position().y;
                     opponentPlayer.bullets = gameObjFromServer.getPlayers2BulletsPositions();
-                    opponentPlayer.refreshBulletsPos();
+                    Bullet.refreshBulletsPos(opponentPlayer.bullets);
 
                     String winner = gameObjFromServer.getWinner();
                     if ( ! winner.equals(Game.NONE)) {
@@ -126,10 +128,11 @@ public class Level {
                 }
                 else { // 2
                     localPlayer.setHp(gameObjFromServer.getPlayer2HP());
-                    opponentPlayer.x = GamePanel.WIDTH - opponentPlayer.width - gameObjFromServer.getPlayer1Position().x;
-                    opponentPlayer.y = GamePanel.HEIGHT - opponentPlayer.height - gameObjFromServer.getPlayer1Position().y;
+                    opponentPlayer.pos.x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameObjFromServer.getPlayer1Position().x;
+                    opponentPlayer.pos.y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameObjFromServer.getPlayer1Position().y;
                     opponentPlayer.bullets = gameObjFromServer.getPlayers1BulletsPositions();
-                    opponentPlayer.refreshBulletsPos();
+                    Bullet.refreshBulletsPos(opponentPlayer.bullets);
+
 
                     String winner = gameObjFromServer.getWinner();
                     if ( ! winner.equals(Game.NONE)) {
@@ -144,8 +147,8 @@ public class Level {
                 }
             }
             case WIN, LOSE, DRAW -> {
-                localPlayer.moveBullets();
-                opponentPlayer.moveBullets();
+                Bullet.moveBullets(localPlayer.bullets);
+                Bullet.moveBullets(opponentPlayer.bullets);
                 if (resetButton.isMouse(mouseHandler.mousePos)) {
                     resetButton.changeColorToFocus();
                     if (mouseHandler.clicked) {
@@ -193,13 +196,14 @@ public class Level {
         return Game.NONE;
     }
 
+    // TODO refactor
     private void checkBulletsHits(Player source, Player target) {
         // checks if bullet hits the target -> start drawing animation and decreases hp if necessary
 
         for (int i = 0; i < source.bullets.size(); ++i) {
             Bullet bullet = source.bullets.get(i);
             if (bullet.hit(target)) {
-                startDrawingHit(bullet.x, bullet.y, bullet.hitDrawScale);
+                startDrawingHit(bullet.pos.x, bullet.pos.y, bullet.hitDrawScale);
                 source.bullets.remove(i);
                 i--;
                 target.decreaseHp(bullet.getPower());
@@ -227,10 +231,10 @@ public class Level {
             case GAME -> {
                 if (localPlayer != null && opponentPlayer != null) {
                     localPlayer.draw(g2);
-                    localPlayer.drawBullets(g2);
+                    Bullet.drawBullets(g2, localPlayer.bullets);
 
                     opponentPlayer.draw(g2);
-                    opponentPlayer.drawBullets(g2);
+                    Bullet.drawBullets(g2, opponentPlayer.bullets);
 
                     localPlayer.drawHpBar(g2);
                     opponentPlayer.drawHpBar(g2);
@@ -245,7 +249,7 @@ public class Level {
             }
             case WIN -> {
                 localPlayer.draw(g2);
-                localPlayer.drawBullets(g2);
+                Bullet.drawBullets(g2, localPlayer.bullets);
                 drawHits(g2);
                 drawAllBoomAnimations(g2);
                 g2.setColor(Color.green);
@@ -255,7 +259,7 @@ public class Level {
             }
             case LOSE -> {
                 opponentPlayer.draw(g2);
-                opponentPlayer.drawBullets(g2);
+                Bullet.drawBullets(g2, opponentPlayer.bullets);
                 drawHits(g2);
                 drawAllBoomAnimations(g2);
                 g2.setColor(new Color(230, 0, 0));
@@ -274,11 +278,14 @@ public class Level {
         }
     }
 
+    // TODO refactor to new class
+    // TODO BUG on second client
     private void startBoomAnimation(Player p) {
         p.isBoom = true;
         boomPlayers.add(p);
     }
 
+    // TODO refactor to new class
     private void drawAllBoomAnimations(Graphics2D g2) {
         for (int i = 0; i < boomPlayers.size(); ++i) {
             Player p = boomPlayers.get(i);
@@ -290,6 +297,7 @@ public class Level {
         }
     }
 
+    // TODO refactor to new class
     private class Hit {
         private final BufferedImage[] hitImages = Arrays.copyOf(boomImages, NUM_OF_IMAGES);
         private final int x, y;
@@ -324,9 +332,13 @@ public class Level {
             }
         }
     }
+
+    // TODO refactor to new class
     private void startDrawingHit(int x, int y, double scale) {
         bulletHits.add(new Hit(x, y, scale));
     }
+
+    // TODO refactor to new class
     private void drawHits(Graphics2D g2) {
         for (int i = 0; i < bulletHits.size(); ++i) {
             Hit h = bulletHits.get(i);
@@ -337,12 +349,13 @@ public class Level {
             }
         }
     }
-
+    // TODO refactor to new class
     private void loadBoomImages() {
         for (int i = 1; i <= NUM_OF_IMAGES; ++i) {
             boomImages[i - 1] = loadBackgroundImage("/boom_animation/boom_" + i + ".png");
         }
     }
+
     private BufferedImage loadBackgroundImage(String path) {
         BufferedImage bg = null;
         try {

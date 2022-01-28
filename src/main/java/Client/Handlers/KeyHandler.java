@@ -3,11 +3,13 @@ package Client.Handlers;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+// class which handles keyboard events
 public class KeyHandler implements KeyListener {
     public boolean rightPressed, leftPressed;
     public boolean upPressed, downPressed;
     public boolean spaceTyped = false;
 
+    // must be implemented
     @Override
     public void keyTyped(KeyEvent keyEvent) {}
 

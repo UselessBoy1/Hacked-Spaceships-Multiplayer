@@ -8,6 +8,12 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedList;
 
+// Game is an object which is sent between server and client.
+// It contains info like:
+//     - players positions
+//     - players hp
+//     - bullets lists
+//     - current winner (or no winner or draw)
 public class Game implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -36,6 +42,8 @@ public class Game implements Serializable {
         ID = id;
     }
 
+    // method which runs on server
+    // updates server's Game object with info from player 1
     public Game determineAndUpdate1(Game gameFromClient) {
         if (!this.ready && gameFromClient.isReady()) {
             this.ready = true;
@@ -47,10 +55,11 @@ public class Game implements Serializable {
         if (this.winner.equals(NONE)) {
             this.winner = gameFromClient.getWinner();
         }
-
         return this;
     }
 
+    // method which runs on server
+    // updates server's Game object with info from player 2
     public Game determineAndUpdate2(Game gameFromClient) {
         if (!this.ready && gameFromClient.isReady()) {
             this.ready = true;
@@ -59,8 +68,50 @@ public class Game implements Serializable {
         this.player2Position = gameFromClient.player2Position;
         this.players2BulletsPositions = gameFromClient.players2BulletsPositions;
 
+        if (this.winner.equals(NONE)) {
+            this.winner = gameFromClient.getWinner();
+        }
         return this;
     }
+
+    // method which runs on client side
+    // update client's Game object with player 1 local info
+    public void updatePlayer1(LocalPlayer player, int opponentHp) {
+        player1Position = player.getPos();
+        player2HP = opponentHp;
+        players1BulletsPositions = new LinkedList<>(player.bullets);
+    }
+
+    // method which runs on client side
+    // update client's Game object with player 2 local info
+    public void updatePlayer2(LocalPlayer player, int opponentHp) {
+        player2Position = player.getPos();
+        player1HP = opponentHp;
+        players2BulletsPositions = new LinkedList<>(player.bullets);
+    }
+
+    // getters and setters
+    public Point getPlayer1Position() {
+        return player1Position;
+    }
+
+    public Point getPlayer2Position() {
+        return player2Position;
+    }
+
+    public LinkedList<Bullet> getPlayers1BulletsPositions() {
+        return players1BulletsPositions;
+    }
+
+    public LinkedList<Bullet> getPlayers2BulletsPositions() {
+        return players2BulletsPositions;
+    }
+
+
+    public void setReady(boolean ready) {
+        this.ready = ready;
+    }
+
     public boolean isReady() {
         return ready;
     }
@@ -79,37 +130,6 @@ public class Game implements Serializable {
 
     public int getPlayer2HP() {
         return player2HP;
-    }
-
-    public Point getPlayer1Position() {
-        return player1Position;
-    }
-
-    public Point getPlayer2Position() {
-        return player2Position;
-    }
-    
-    public LinkedList<Bullet> getPlayers1BulletsPositions() {
-        return players1BulletsPositions;
-    }
-    
-    public LinkedList<Bullet> getPlayers2BulletsPositions() {
-        return players2BulletsPositions;
-    }
-
-    public void updatePlayer1(LocalPlayer player, int opponentHp) {
-        player1Position = player.getPos();
-        player2HP = opponentHp;
-        players1BulletsPositions = new LinkedList<>(player.bullets);
-    }
-
-    public void updatePlayer2(LocalPlayer player, int opponentHp) {
-        player2Position = player.getPos();
-        player1HP = opponentHp;
-        players2BulletsPositions = new LinkedList<>(player.bullets);
-    }
-    public void setReady(boolean ready) {
-        this.ready = ready;
     }
 
     public long getID() {

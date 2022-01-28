@@ -23,7 +23,6 @@ public class Button {
     }
 
     public void draw(Graphics2D g2) {
-
         // border
         int BORDER_SIZE = 5;
         g2.setColor(Color.black);
@@ -33,11 +32,13 @@ public class Button {
         g2.setColor(currentColor);
         g2.fillRect(X, Y, WIDTH, HEIGHT);
 
+        // text
         g2.setColor(Color.black);
         g2.setFont(font);
         g2.drawString(TEXT, X + (BORDER_SIZE), Y + (HEIGHT / 2 + BORDER_SIZE) + 16);
     }
 
+    // methods to change color if mouse cursor is on this button.
     public void changeColorToDefault() {
         currentColor = COLOR;
     }
@@ -46,6 +47,7 @@ public class Button {
         currentColor = FOCUS_COLOR;
     }
 
+    // check if mouse cursor is on this button
     public boolean isMouse(Point pos) {
         if (pos.x > X && pos.x < X + WIDTH) {
             return pos.y > Y && pos.y < Y + HEIGHT;

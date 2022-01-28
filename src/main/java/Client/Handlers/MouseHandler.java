@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+// class which handles mouse events
 public class MouseHandler implements MouseListener, MouseMotionListener {
     public boolean clicked = false;
     public Point mousePos = new Point(0, 0);
@@ -20,6 +21,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener {
         mousePos.y = mouseEvent.getY();
     }
 
+    // these methods must be implemented even if they are empty
     @Override
     public void mousePressed(MouseEvent mouseEvent) {}
     @Override

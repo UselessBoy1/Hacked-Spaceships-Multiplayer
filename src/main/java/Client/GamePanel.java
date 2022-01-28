@@ -6,15 +6,21 @@ import Client.Handlers.MouseHandler;
 import javax.swing.*;
 import java.awt.*;
 
+// this class uses build-in JPanel
+// it handles:
+//   - game loop -> draw and update Level class (game logic) on screen
+//   - keyboards and mouse events (handlers are written in different class)
 public class GamePanel extends JPanel implements Runnable {
+    // widow size
     public static final int WIDTH = 1000;
     public static final int HEIGHT = 750;
-    final int FPS = 120;
+    final int FPS = 60;
 
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();
     MouseHandler mouseHandler = new MouseHandler();
 
+    // game logic is in Level class
     Level level = new Level(keyHandler, mouseHandler);
 
     public GamePanel() {
