@@ -11,12 +11,12 @@ public class Bullet implements Serializable {
     @Serial
     private static final long serialVersionUID = 2L;
 
-    private final Point pos;
-    private final int width = 5, height = 30;
-    private boolean goDown;
-    final int speed = 6;
-    final int power = 30;
-    final double hitDrawScale = 0.2;
+    final Point pos;
+    int width = 5, height = 30;
+    boolean goDown;
+    int speed = 6;
+    int power = 30;
+    double hitDrawScale = 0.2;
 
     public Bullet(int x, int y, boolean goDown) {
         this.pos = new Point(x, y - 10);
@@ -89,6 +89,10 @@ public class Bullet implements Serializable {
 
     public Point getPos() {
         return pos;
+    }
+
+    public int getXPosWhereHit() {
+        return pos.x + width / 2;
     }
 
     public int getHeight() {

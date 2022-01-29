@@ -22,6 +22,10 @@ public class Player {
     HpBar hpBar;
     int hp = 600;
 
+
+    boolean shieldActive = false;
+    Shield shield;
+
     final int NUM_OF_IMAGES = 11;
     BufferedImage[] images = new BufferedImage[NUM_OF_IMAGES];
     BufferedImage[] boomImages = new BufferedImage[NUM_OF_IMAGES];
@@ -33,6 +37,7 @@ public class Player {
     public Player() {
         name = "OPPONENT";
         pos = new Point(-100, -100);
+        shield = new Shield(this);
         hpBar = new HpBar(5, 25, hp, name);
         loadAllImages("red_enemy/enemy1_");
     }
@@ -51,11 +56,19 @@ public class Player {
     }
 
     public void refreshHp() {
-        hpBar.setHp(hp);
+        hpBar.setValue(hp);
     }
 
     public Point getPos() {
         return pos;
+    }
+
+    public boolean isShieldActive() {
+        return shieldActive;
+    }
+
+    public void setShieldActive(boolean shieldActive) {
+        this.shieldActive = shieldActive;
     }
 
     public int getHp() {
@@ -72,6 +85,9 @@ public class Player {
             animationCounter = 0;
         }
         g2.drawImage(images[animationCounter / 6], pos.x, pos.y, null);
+        if (isShieldActive()) {
+            shield.draw(g2);
+        }
     }
 
     public void drawHpBar(Graphics2D g2) {

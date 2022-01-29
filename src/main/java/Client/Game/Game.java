@@ -85,6 +85,7 @@ public class Game {
 
                 // begin BEFORE SERVER
                 localPlayer.move();
+                localPlayer.shot(opponentPlayer.getPos().x);
                 Bullet.moveBullets(localPlayer.bullets);
                 opponentPlayer.refreshHp();
 
@@ -160,6 +161,7 @@ public class Game {
         opponentPlayer.getPos().x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameDataObjectFromServer.getPlayer2Position().x;
         opponentPlayer.getPos().y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameDataObjectFromServer.getPlayer2Position().y;
         opponentPlayer.bullets = gameDataObjectFromServer.getPlayers2BulletsPositions();
+        opponentPlayer.setShieldActive(gameDataObjectFromServer.isPlayer2Shield());
         Bullet.refreshBulletsPos(opponentPlayer.bullets);
     }
 
@@ -168,6 +170,7 @@ public class Game {
         opponentPlayer.getPos().x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameDataObjectFromServer.getPlayer1Position().x;
         opponentPlayer.getPos().y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameDataObjectFromServer.getPlayer1Position().y;
         opponentPlayer.bullets = gameDataObjectFromServer.getPlayers1BulletsPositions();
+        opponentPlayer.setShieldActive(gameDataObjectFromServer.isPlayer1Shield());
         Bullet.refreshBulletsPos(opponentPlayer.bullets);
     }
 
@@ -232,11 +235,12 @@ public class Game {
             Bullet bullet = source.bullets.get(i);
             if (bullet.hit(target)) {
                 if (hpDec) {
-                    hitsAndBoomAnimationController.startDrawingHit(bullet.getPos().x, bullet.getPos().y, bullet.getHitDrawScale());
-                    target.decreaseHp(bullet.getPower());
+                    hitsAndBoomAnimationController.startDrawingHit(bullet.getXPosWhereHit(), bullet.getPos().y, bullet.getHitDrawScale());
+                    if (!target.isShieldActive())
+                        target.decreaseHp(bullet.getPower());
                 }
                 else {
-                    hitsAndBoomAnimationController.startDrawingHit(bullet.getPos().x, bullet.getPos().y + bullet.getHeight(), bullet.getHitDrawScale());
+                    hitsAndBoomAnimationController.startDrawingHit(bullet.getXPosWhereHit(), bullet.getPos().y + bullet.getHeight(), bullet.getHitDrawScale());
                 }
                 source.bullets.remove(i);
                 i--;
@@ -255,7 +259,7 @@ public class Game {
             case WAITING -> {
                 if (localPlayer != null) {
                     localPlayer.draw(g2);
-                    localPlayer.drawHpBar(g2);
+                    localPlayer.drawBars(g2);
                 }
                 g2.setColor(Color.black);
                 g2.setFont(new Font("FreeSans", Font.BOLD, 50));
@@ -269,7 +273,7 @@ public class Game {
                     opponentPlayer.draw(g2);
                     Bullet.drawBullets(g2, opponentPlayer.bullets);
 
-                    localPlayer.drawHpBar(g2);
+                    localPlayer.drawBars(g2);
                     opponentPlayer.drawHpBar(g2);
 
                     hitsAndBoomAnimationController.draw(g2);

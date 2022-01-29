@@ -25,10 +25,12 @@ public class GameDataObject implements Serializable {
     private Point player1Position = new Point(400, 600);
     private LinkedList<Bullet> players1BulletsPositions = new LinkedList<>();
     private int player1HP = 200;
+    private boolean player1Shield = false;
 
     private Point player2Position = new Point(-400, -100);
     private LinkedList<Bullet> players2BulletsPositions = new LinkedList<>();
     private int player2HP = 200;
+    private boolean player2Shield = false;
 
     // game results
     public static final String PLAYER_1 = "p1";
@@ -49,6 +51,7 @@ public class GameDataObject implements Serializable {
             this.ready = true;
         }
         this.player1Position = gameDataObjectFromClient.player1Position;
+        this.player1Shield = gameDataObjectFromClient.player1Shield;
         this.player2HP = gameDataObjectFromClient.player2HP;
         this.players1BulletsPositions = gameDataObjectFromClient.players1BulletsPositions;
 
@@ -66,6 +69,7 @@ public class GameDataObject implements Serializable {
         }
         this.player1HP = gameDataObjectFromClient.player1HP;
         this.player2Position = gameDataObjectFromClient.player2Position;
+        this.player2Shield = gameDataObjectFromClient.player2Shield;
         this.players2BulletsPositions = gameDataObjectFromClient.players2BulletsPositions;
 
         if (!this.winner.equals(DRAW)) {
@@ -78,6 +82,7 @@ public class GameDataObject implements Serializable {
     // update client's GameDataObject with player 1 local info
     public void updatePlayer1(LocalPlayer player, int opponentHp) {
         player1Position = player.getPos();
+        player1Shield = player.isShieldActive();
         player2HP = opponentHp;
         players1BulletsPositions = new LinkedList<>(player.bullets);
     }
@@ -86,6 +91,7 @@ public class GameDataObject implements Serializable {
     // update client's GameDataObject with player 2 local info
     public void updatePlayer2(LocalPlayer player, int opponentHp) {
         player2Position = player.getPos();
+        player2Shield = player.isShieldActive();
         player1HP = opponentHp;
         players2BulletsPositions = new LinkedList<>(player.bullets);
     }
@@ -107,6 +113,13 @@ public class GameDataObject implements Serializable {
         return players2BulletsPositions;
     }
 
+    public boolean isPlayer1Shield() {
+        return player1Shield;
+    }
+
+    public boolean isPlayer2Shield() {
+        return player2Shield;
+    }
 
     public void setReady(boolean ready) {
         this.ready = ready;
