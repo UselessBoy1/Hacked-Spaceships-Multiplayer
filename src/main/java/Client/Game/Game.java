@@ -45,7 +45,7 @@ public class Game {
 
     public Game(KeyHandler kH, MouseHandler mH) {
         mouseHandler = mH;
-        backgroundImage = loadBackgroundImage("/level_background/background_l1.png");
+        backgroundImage = loadBackgroundImage();
         keyHandler = kH;
     }
 
@@ -81,6 +81,9 @@ public class Game {
                 }
             }
             case GAME -> {
+                // three parts of update: BEFORE SERVER, SERVER, AFTER SERVER
+
+                // begin BEFORE SERVER
                 localPlayer.move();
                 Bullet.moveBullets(localPlayer.bullets);
                 opponentPlayer.refreshHp();
@@ -90,73 +93,36 @@ public class Game {
                 checkBulletsHits(localPlayer, opponentPlayer, true);
                 checkBulletsHits(opponentPlayer, localPlayer, false);
 
+                // update gameDataObject before send to server
                 if (playerId == 1) {
                     gameDataObjectFromServer.updatePlayer1(localPlayer, opponentPlayer.getHp());
                 }
                 else { // 2
                     gameDataObjectFromServer.updatePlayer2(localPlayer, opponentPlayer.getHp());
                 }
+                // end BEFORE SERVER
 
+                // start SERVER
                 connectionWithServerCounter++;
+                // limit number of connections to server
                 if (connectionWithServerCounter == 2) {
                     connectionWithServerCounter = 0;
-                    try {
-                        gameDataObjectFromServer = socketClient.sendAndReceiveGame(gameDataObjectFromServer);
-                    } catch (IOException | ClassNotFoundException e) {
-                        System.out.println("Lost connection");
-                        state = CONNECTING;
-                    }
-                    // TODO refactor!!!
+
+                    communicateWithServerWhileGame();
+                    // end SERVER
+
+                    // start AFTER SERVER
                     if (playerId == 1) {
-                        localPlayer.setHp(gameDataObjectFromServer.getPlayer1HP());
-                        opponentPlayer.getPos().x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameDataObjectFromServer.getPlayer2Position().x;
-                        opponentPlayer.getPos().y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameDataObjectFromServer.getPlayer2Position().y;
-                        opponentPlayer.bullets = gameDataObjectFromServer.getPlayers2BulletsPositions();
-                        Bullet.refreshBulletsPos(opponentPlayer.bullets);
-
-                        String winner = gameDataObjectFromServer.getWinner();
-                        if (!winner.equals(GameDataObject.NONE)) {
-                            resetButton = new Button(340, 400, 320, 100, Color.BLUE, new Color(0, 0, 150), "PLAY AGAIN", 50);
-                            switch (winner) {
-                                case GameDataObject.DRAW -> state = DRAW;
-                                case GameDataObject.PLAYER_1 -> state = WIN;
-                                case GameDataObject.PLAYER_2 -> state = LOSE;
-                            }
-                            mouseHandler.clicked = false;
-                            try {
-                                gameDataObjectFromServer = socketClient.sendAndReceiveGame(gameDataObjectFromServer);
-                            } catch (IOException | ClassNotFoundException e) {
-                                System.out.println("Lost connection");
-                                state = CONNECTING;
-                            }
-                            checkGameWinner();
-                        }
+                        applyDataFromServerForPlayer1();
                     } else { // 2
-                        localPlayer.setHp(gameDataObjectFromServer.getPlayer2HP());
-                        opponentPlayer.getPos().x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameDataObjectFromServer.getPlayer1Position().x;
-                        opponentPlayer.getPos().y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameDataObjectFromServer.getPlayer1Position().y;
-                        opponentPlayer.bullets = gameDataObjectFromServer.getPlayers1BulletsPositions();
-                        Bullet.refreshBulletsPos(opponentPlayer.bullets);
-
-
-                        String winner = gameDataObjectFromServer.getWinner();
-                        if (!winner.equals(GameDataObject.NONE)) {
-                            resetButton = new Button(340, 400, 320, 100, Color.BLUE, new Color(0, 0, 150), "PLAY AGAIN", 50);
-                            switch (winner) {
-                                case GameDataObject.DRAW -> state = DRAW;
-                                case GameDataObject.PLAYER_1 -> state = LOSE;
-                                case GameDataObject.PLAYER_2 -> state = WIN;
-                            }
-                            mouseHandler.clicked = false;
-                            try {
-                                gameDataObjectFromServer = socketClient.sendAndReceiveGame(gameDataObjectFromServer);
-                            } catch (IOException | ClassNotFoundException e) {
-                                System.out.println("Lost connection");
-                                state = CONNECTING;
-                            }
-                            checkGameWinner();
-                        }
+                        applyDataFromServerForPlayer2();
                     }
+                    String winner = gameDataObjectFromServer.getWinner();
+                    if (!winner.equals(GameDataObject.NONE)) {
+
+                        changeGameState(winner, playerId);
+                    }
+                    // end AFTER SERVER
                 }
             }
             case WIN, LOSE, DRAW -> {
@@ -176,9 +142,33 @@ public class Game {
                     resetButton.changeColorToDefault();
                 }
                 mouseHandler.clicked = false;
-//                System.out.println("win");
             }
         }
+    }
+
+    private void communicateWithServerWhileGame() {
+        try {
+            gameDataObjectFromServer = socketClient.sendAndReceiveGame(gameDataObjectFromServer);
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Lost connection");
+            state = CONNECTING;
+        }
+    }
+
+    private void applyDataFromServerForPlayer1() {
+        localPlayer.setHp(gameDataObjectFromServer.getPlayer1HP());
+        opponentPlayer.getPos().x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameDataObjectFromServer.getPlayer2Position().x;
+        opponentPlayer.getPos().y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameDataObjectFromServer.getPlayer2Position().y;
+        opponentPlayer.bullets = gameDataObjectFromServer.getPlayers2BulletsPositions();
+        Bullet.refreshBulletsPos(opponentPlayer.bullets);
+    }
+
+    private void applyDataFromServerForPlayer2() {
+        localPlayer.setHp(gameDataObjectFromServer.getPlayer2HP());
+        opponentPlayer.getPos().x = GamePanel.WIDTH - opponentPlayer.WIDTH - gameDataObjectFromServer.getPlayer1Position().x;
+        opponentPlayer.getPos().y = GamePanel.HEIGHT - opponentPlayer.HEIGHT - gameDataObjectFromServer.getPlayer1Position().y;
+        opponentPlayer.bullets = gameDataObjectFromServer.getPlayers1BulletsPositions();
+        Bullet.refreshBulletsPos(opponentPlayer.bullets);
     }
 
     private String checkGameWinner() {
@@ -209,10 +199,35 @@ public class Game {
         return GameDataObject.NONE;
     }
 
-    // TODO refactor
+    private void changeGameState(String winner, int currentPlayerId) {
+        resetButton = new Button(415, 330, 160, 25, Color.BLUE, new Color(0, 0, 150), "PLAY AGAIN", 25);
+        switch (winner) {
+            case GameDataObject.DRAW -> state = DRAW;
+            case GameDataObject.PLAYER_1 -> {
+                if (currentPlayerId == 1) state = WIN;
+                else state = LOSE;
+            }
+            case GameDataObject.PLAYER_2 -> {
+                if (currentPlayerId == 1) state = LOSE;
+                else state = WIN;
+            }
+        }
+        mouseHandler.clicked = false; // to avoid button click bug
+
+        // to refresh hitsAndBoomAnimationController
+        // fetch data from server
+        try {
+            gameDataObjectFromServer = socketClient.sendAndReceiveGame(gameDataObjectFromServer);
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Lost connection");
+            state = CONNECTING;
+        }
+        // and check winner -> this method refreshes hitsAndBoomAnimationController
+        checkGameWinner();
+    }
+
     private void checkBulletsHits(Player source, Player target, boolean hpDec) {
         // checks if bullet hits the target -> start drawing animation and decreases hp if necessary
-
         for (int i = 0; i < source.bullets.size(); ++i) {
             Bullet bullet = source.bullets.get(i);
             if (bullet.hit(target)) {
@@ -292,13 +307,11 @@ public class Game {
         }
     }
 
-    // TODO BUG on second client
-
-    private BufferedImage loadBackgroundImage(String path) {
+    private BufferedImage loadBackgroundImage() {
         BufferedImage bg = null;
         try {
             bg = ImageIO.read(
-                    Objects.requireNonNull(getClass().getResourceAsStream(path))
+                    Objects.requireNonNull(getClass().getResourceAsStream("/level_background/background_l1.png"))
             );
         }
         catch (IOException e) {

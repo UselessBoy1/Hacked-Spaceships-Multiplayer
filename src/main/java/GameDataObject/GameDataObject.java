@@ -52,7 +52,7 @@ public class GameDataObject implements Serializable {
         this.player2HP = gameDataObjectFromClient.player2HP;
         this.players1BulletsPositions = gameDataObjectFromClient.players1BulletsPositions;
 
-        if (this.winner.equals(NONE)) {
+        if (!this.winner.equals(DRAW)) {
             this.winner = gameDataObjectFromClient.getWinner();
         }
         return this;
@@ -68,7 +68,7 @@ public class GameDataObject implements Serializable {
         this.player2Position = gameDataObjectFromClient.player2Position;
         this.players2BulletsPositions = gameDataObjectFromClient.players2BulletsPositions;
 
-        if (this.winner.equals(NONE)) {
+        if (!this.winner.equals(DRAW)) {
             this.winner = gameDataObjectFromClient.getWinner();
         }
         return this;

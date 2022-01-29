@@ -21,6 +21,7 @@ public class LocalPlayer extends Player{
         long currentSpaceTypedTime = System.nanoTime();
         long diff = currentSpaceTypedTime - lastSpaceTypedTime;
         if (keyHandler.spaceTyped && diff > 2_000_000_00) {
+//        if (diff > 2_000_000_00) {
             keyHandler.spaceTyped = false;
             lastSpaceTypedTime = currentSpaceTypedTime;
             bullets.add(new Bullet(pos.x + WIDTH / 2, pos.y, false));
@@ -46,7 +47,7 @@ public class LocalPlayer extends Player{
     private void detectBorderCollision() {
         if (pos.x <= 0) pos.x = 0;
         if (pos.x >= 1000 - WIDTH) pos.x = 1000 - WIDTH;
-        if (pos.y <= 0) pos.y = 0;
+        if (pos.y <= 375) pos.y = 375;
         if (pos.y >= 750 - HEIGHT) pos.y = 750 - HEIGHT;
     }
 }

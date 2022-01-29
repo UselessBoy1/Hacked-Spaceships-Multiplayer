@@ -34,7 +34,7 @@ public class Button {
         // text
         g2.setColor(Color.black);
         g2.setFont(font);
-        g2.drawString(TEXT, X + (BORDER_SIZE), Y + (HEIGHT / 2 + BORDER_SIZE) + 16);
+        g2.drawString(TEXT, X + (BORDER_SIZE), Y + (HEIGHT / 2 + BORDER_SIZE) + 5);
     }
 
     // methods to change color if mouse cursor is on this button.
