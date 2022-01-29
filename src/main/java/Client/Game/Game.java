@@ -123,6 +123,13 @@ public class Game {
                                 case GameDataObject.PLAYER_2 -> state = LOSE;
                             }
                             mouseHandler.clicked = false;
+                            try {
+                                gameDataObjectFromServer = socketClient.sendAndReceiveGame(gameDataObjectFromServer);
+                            } catch (IOException | ClassNotFoundException e) {
+                                System.out.println("Lost connection");
+                                state = CONNECTING;
+                            }
+                            checkGameWinner();
                         }
                     } else { // 2
                         localPlayer.setHp(gameDataObjectFromServer.getPlayer2HP());
@@ -141,6 +148,13 @@ public class Game {
                                 case GameDataObject.PLAYER_2 -> state = WIN;
                             }
                             mouseHandler.clicked = false;
+                            try {
+                                gameDataObjectFromServer = socketClient.sendAndReceiveGame(gameDataObjectFromServer);
+                            } catch (IOException | ClassNotFoundException e) {
+                                System.out.println("Lost connection");
+                                state = CONNECTING;
+                            }
+                            checkGameWinner();
                         }
                     }
                 }

@@ -20,7 +20,7 @@ public class Player {
     final int SPEED = 6;
 
     HpBar hpBar;
-    int hp = 200;
+    int hp = 600;
 
     final int NUM_OF_IMAGES = 11;
     BufferedImage[] images = new BufferedImage[NUM_OF_IMAGES];
@@ -33,7 +33,7 @@ public class Player {
     public Player() {
         name = "OPPONENT";
         pos = new Point(-100, -100);
-        hpBar = new HpBar(20, 25, hp, name);
+        hpBar = new HpBar(5, 25, hp, name);
         loadAllImages("red_enemy/enemy1_");
     }
 

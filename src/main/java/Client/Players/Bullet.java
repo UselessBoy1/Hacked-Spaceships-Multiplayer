@@ -94,6 +94,7 @@ public class Bullet implements Serializable {
     public int getHeight() {
         return height;
     }
+
     public double getHitDrawScale() {
         return hitDrawScale;
     }

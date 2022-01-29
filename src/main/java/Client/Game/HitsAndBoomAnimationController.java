@@ -36,10 +36,10 @@ public class HitsAndBoomAnimationController {
 
         private void drawBoomAnimation(Graphics2D g2) {
             boomAnimationCounter++;
-            if (boomAnimationCounter >= 116) {
+            if (boomAnimationCounter >= 58) {
                 isBoom = false;
             }
-            g2.drawImage(boomImages[boomAnimationCounter / 12], pos.x, pos.y, null);
+            g2.drawImage(boomImages[boomAnimationCounter / 6], pos.x, pos.y, null);
         }
     }
     public void startBoomAnimation(Point lastPosition) {

@@ -11,8 +11,8 @@ public class LocalPlayer extends Player{
     public LocalPlayer(KeyHandler kH) {
         keyHandler = kH;
         name = "PLAYER";
-        pos = new Point(400, 600);
-        hpBar = new HpBar(20, 720, hp, name);
+        pos = new Point(440, 600);
+        hpBar = new HpBar(5, 720, hp, name);
         loadAllImages("player/player_");
     }
 
