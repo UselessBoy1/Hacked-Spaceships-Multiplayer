@@ -9,7 +9,7 @@ public class Missile extends Bullet {
         super(x, y, goDown);
         TARGET_X = playerX + 50;
         speed = 5;
-        power = 90;
+        power = 300;
         hitDrawScale = 0.5;
         width = 10;
     }

@@ -106,7 +106,7 @@ public class Game {
                 // start SERVER
                 connectionWithServerCounter++;
                 // limit number of connections to server
-                if (connectionWithServerCounter == 2) {
+                if (connectionWithServerCounter == 3) {
                     connectionWithServerCounter = 0;
 
                     communicateWithServerWhileGame();

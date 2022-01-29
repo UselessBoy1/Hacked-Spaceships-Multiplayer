@@ -71,10 +71,10 @@ public class HitsAndBoomAnimationController {
 
         public void drawBoomAnimation(Graphics2D g2) {
             boomCounter++;
-            if (boomCounter >= 40) {
+            if (boomCounter >= 20) {
                 isBoom = false;
             }
-            g2.drawImage(hitImages[boomCounter / 4], x, y, null);
+            g2.drawImage(hitImages[boomCounter / 2], x, y, null);
         }
 
         protected void scaleBoomImages(double scale) {

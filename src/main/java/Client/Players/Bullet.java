@@ -69,7 +69,7 @@ public class Bullet implements Serializable {
                 return true;
 
             // for draw opponent hits
-            if (this.goDown && (this.pos.y + this.height + 5) > target.pos.y && (this.pos.y) < (target.pos.y + target.HEIGHT))
+            if (this.goDown && (this.pos.y + this.height + 20) > target.pos.y && (this.pos.y) < (target.pos.y + target.HEIGHT))
                 return true;
         }
         if (this.pos.x > target.pos.x && (this.pos.x + this.width) < (target.pos.x + target.WIDTH)) {

@@ -17,7 +17,7 @@ public class Player {
 
     Point pos;
 
-    final int SPEED = 6;
+    final int SPEED = 4;
 
     HpBar hpBar;
     int hp = 600;
