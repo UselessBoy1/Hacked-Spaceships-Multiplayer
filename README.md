@@ -15,6 +15,7 @@ and two clients:
 If you want to run on different ip or port make changes in app.config file.
 
 Controls:
+
     Move -> w, s, a, d or up, down, left, right
     Shot -> space
     Missile -> r
