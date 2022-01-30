@@ -32,7 +32,7 @@ public class MissileBar extends HpBar {
         // hp
         g2.setColor(Color.gray);
         g2.fillRect(X + BORDER_SIZE, Y + BORDER_SIZE, WIDTH - 2 * BORDER_SIZE, HEIGHT - 2 * BORDER_SIZE);
-        g2.setColor(Color.green);
+        g2.setColor(new Color(0, value / 2, 0));
         g2.fillRect(X + BORDER_SIZE, Y + BORDER_SIZE, value / VALUE_DIV, HEIGHT - 2 * BORDER_SIZE);
 
         drawSmallPicture(g2);
