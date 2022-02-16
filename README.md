@@ -12,6 +12,8 @@ and two clients:
 
 `java -jar SpaceshipsMultiplayer_client_localhost.jar`
 
+You can also run *8.jar files if you have older versions of Java.
+
 If you want to run on different ip or port make changes in app.config file.
 
 Controls:
