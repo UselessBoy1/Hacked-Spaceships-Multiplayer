@@ -16,7 +16,8 @@ public class MissileBar extends HpBar {
     }
 
     public boolean isReady() {
-        return value == MAX_VALUE;
+        return true;
+//        return value == MAX_VALUE;
     }
 
     public void use() {

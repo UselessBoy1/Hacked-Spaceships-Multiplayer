@@ -129,9 +129,9 @@ public class Game {
             case WIN, LOSE, DRAW -> {
                 Bullet.moveBullets(localPlayer.bullets);
                 Bullet.moveBullets(opponentPlayer.bullets);
-                if (resetButton.isMouse(mouseHandler.mousePos)) {
+                if (true) {
                     resetButton.changeColorToFocus();
-                    if (mouseHandler.clicked) {
+                    if (true) {
                         mouseHandler.clicked = false;
                         state = CONNECTING;
                         try {

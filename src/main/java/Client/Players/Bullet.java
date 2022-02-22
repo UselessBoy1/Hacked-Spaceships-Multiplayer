@@ -64,7 +64,8 @@ public class Bullet implements Serializable {
     }
 
     public boolean hit(Player target) {
-        if (this.pos.x > (target.pos.x + target.SPECIAL_POINT_X1) && (this.pos.x + this.width) < (target.pos.x + target.SPECIAL_POINT_X2)) {
+        return true;
+        /*if (this.pos.x > (target.pos.x + target.SPECIAL_POINT_X1) && (this.pos.x + this.width) < (target.pos.x + target.SPECIAL_POINT_X2)) {
             if (this.pos.y > target.pos.y && (this.pos.y) < (target.pos.y + target.HEIGHT))
                 return true;
 
@@ -80,7 +81,7 @@ public class Bullet implements Serializable {
             if (this.goDown && ((this.pos.y + this.height - 5) > (target.pos.y + target.SPECIAL_POINT_Y1) && (this.pos.y) < (target.pos.y + target.SPECIAL_POINT_Y2)))
                 return true;
         }
-        return false;
+        return false;*/
     }
 
     public int getPower() {

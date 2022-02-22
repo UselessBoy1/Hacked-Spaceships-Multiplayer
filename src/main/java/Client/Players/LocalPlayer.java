@@ -37,7 +37,7 @@ public class LocalPlayer extends Player{
         }
         if (missileBar.isReady()) {
             if (keyHandler.rTyped) {
-                keyHandler.rTyped = false;
+                //keyHandler.rTyped = true;
                 missileBar.use();
                 bullets.add(new Missile(pos.x + WIDTH / 2, pos.y, false, opponentX));
             }
@@ -75,7 +75,7 @@ public class LocalPlayer extends Player{
         }
 
         hpBar.setValue(hp);
-        detectBorderCollision();
+        //detectBorderCollision();
     }
 
     private void detectBorderCollision() {

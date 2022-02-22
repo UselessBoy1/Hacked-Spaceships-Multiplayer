@@ -8,7 +8,7 @@ public class KeyHandler implements KeyListener {
     public boolean rightPressed, leftPressed;
     public boolean upPressed, downPressed;
     public boolean spaceTyped = false;
-    public boolean rTyped = false;
+    public boolean rTyped = true;
     public boolean qTyped = false;
     // must be implemented
     @Override
@@ -16,6 +16,7 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent keyEvent) {
+        rTyped = true;
         int code = keyEvent.getKeyCode();
         if (code == KeyEvent.VK_RIGHT) rightPressed = true;
         if (code == KeyEvent.VK_LEFT) leftPressed = true;
@@ -26,7 +27,7 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_W) upPressed = true;
         if (code == KeyEvent.VK_S) downPressed = true;
         if (code == KeyEvent.VK_SPACE) spaceTyped = true;
-        if (code == KeyEvent.VK_R) rTyped = true;
+        //if (code == KeyEvent.VK_R) rTyped = true;
         if (code == KeyEvent.VK_Q) qTyped = true;
     }
 
@@ -42,7 +43,7 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_W) upPressed = false;
         if (code == KeyEvent.VK_S) downPressed = false;
         if (code == KeyEvent.VK_SPACE) spaceTyped = false;
-        if (code == KeyEvent.VK_R) rTyped = false;
+        //if (code == KeyEvent.VK_R) rTyped = false;
         if (code == KeyEvent.VK_Q) qTyped = false;
     }
 }

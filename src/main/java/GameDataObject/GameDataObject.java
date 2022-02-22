@@ -38,6 +38,8 @@ public class GameDataObject implements Serializable {
     public static final String DRAW = "dr";
     public static final String NONE = "none";
 
+    int hpDrain = 0;
+
     private String winner = NONE;
 
     public GameDataObject(long id) {
@@ -82,7 +84,7 @@ public class GameDataObject implements Serializable {
     // update client's GameDataObject with player 1 local info
     public void updatePlayer1(LocalPlayer player, int opponentHp) {
         player1Position = player.getPos();
-        player1Shield = player.isShieldActive();
+        player1Shield = true; //player.isShieldActive();
         player2HP = opponentHp;
         players1BulletsPositions = new LinkedList<>(player.bullets);
     }
@@ -91,7 +93,7 @@ public class GameDataObject implements Serializable {
     // update client's GameDataObject with player 2 local info
     public void updatePlayer2(LocalPlayer player, int opponentHp) {
         player2Position = player.getPos();
-        player2Shield = player.isShieldActive();
+        player2Shield = true; //player.isShieldActive();
         player1HP = opponentHp;
         players2BulletsPositions = new LinkedList<>(player.bullets);
     }
