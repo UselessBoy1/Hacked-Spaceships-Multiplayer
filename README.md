@@ -22,3 +22,11 @@ Controls:
     Shot -> space
     Missile -> r
     Shield -> q
+
+Unlimited shields
+Auto and always hitting missiles
+Auto battle restart
+
+`MAKE LEGIT PLAYER CRY :)`
+
+xD
